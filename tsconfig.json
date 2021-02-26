@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "outDir": "./dist/",
+    "module": "es6",
+    "target": "es6",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "strict": true,
+    "declaration": true,
+    "allowJs": true,
+    "sourceMap": true
+  }
+}

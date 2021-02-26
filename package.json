@@ -1,0 +1,84 @@
+{
+  "name": "localstorage-slim",
+  "title": "localstorage-slim",
+  "description": "An ultra slim localstorage wrapper with support for ttl",
+  "version": "1.0.0",
+  "homepage": "https://github.com/niketpathak/localstorage-slim",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npm run server -- --mode development --progress",
+    "prod": "npm run server -- --mode production",
+    "watch": "npm run dev -- --watch",
+    "server": "webpack",
+    "tag": "npm version minor --no-git-tag-version && npm run prod && PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git commit -am \"$PACKAGE_VERSION release\" && git tag v$PACKAGE_VERSION",
+    "test": "jest --verbose",
+    "lint": "eslint ./src --ext .ts --fix"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|jsx)$": "babel-jest",
+      "^.+\\.(ts|tsx)?$": "ts-jest"
+    }
+  },
+  "author": {
+    "name": "Niket Pathak",
+    "email": "contact@niketpathak.com",
+    "url": "https://niketpathak.com"
+  },
+  "browser": "dist/localstorage-slim.min.js",
+  "main": "dist/localstorage-slim.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/niketpathak/localstorage-slim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/niketpathak/localstorage-slim/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/niketpathak/localstorage-slim/blob/master/LICENSE"
+    }
+  ],
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "localstorage",
+    "localstorage-ttl",
+    "ttl-localstorage",
+    "localstorage-with-ttl",
+    "localstorage with ttl",
+    "localstorage-expires",
+    "localstorage expires",
+    "localstorage wrapper",
+    "lean localstorage",
+    "tiny localstorage",
+    "mini localstorage",
+    "slim localstorage",
+    "localstorage-slim.js"
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@typescript-eslint/eslint-plugin": "^4.4.1",
+    "@typescript-eslint/parser": "^4.4.1",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^8.1.0",
+    "eslint": "^7.11.0",
+    "eslint-config-prettier": "^6.13.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.6.3",
+    "mini-css-extract-plugin": "^1.0.0",
+    "prettier": "^2.1.2",
+    "style-loader": "^1.3.0",
+    "ts-jest": "^26.4.4",
+    "ts-loader": "^8.0.5",
+    "typescript": "^4.0.3",
+    "webpack": "^5.1.3",
+    "webpack-cli": "^4.1.0"
+  }
+}

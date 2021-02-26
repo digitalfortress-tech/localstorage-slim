@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Localstorage-slim Demo</title>
+  <meta name="description" content="Localstorage-slim - An ultra slim localstorage wrapper with support for ttl" />
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-63687183-8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-63687183-8');
+  </script>
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet"
+    type="text/css" />
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+    rel="stylesheet" type="text/css" />
+  <!-- <link rel="stylesheet" href="./assets/css/bootstrap.min.css" /> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha512-rO2SXEKBSICa/AfyhEK5ZqWFCOok1rcgPYfGOqtX35OyiraBg6Xa4NnBJwXgpIRoXeWjcAmcQniMhp22htDc6g=="
+    crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.12.0/css/all.css"
+    integrity="sha384-ekOryaXPbeCpWQNxMwSWVvQ0+1VrStoPJq54shlYhR8HzQgig1v5fas6YgOqLoKz" crossorigin="anonymous" />
+  <link rel="stylesheet" href="./assets/css/main.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/styles/default.min.css">
+  <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css" />
+  <link rel="stylesheet" type="text/css" href="https://codemirror.net/theme/solarized.css" />
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const dev = typeof mode === "string" && mode.toLowerCase() === 'dev' ? true : false;
+
+        window.klipse_settings = {  // input
+      selector_eval_js: ".eval-js",
+        codemirror_options_in: {
+          indentUnit: 2,
+          // lineWrapping: true,
+          lineNumbers: true,
+          matchBrackets: true,
+          theme: 'solarized dark',
+        },
+        codemirror_options_out: {   // output
+          // lineNumbers: true,
+          theme: 'solarized dark',
+        }
+    };
+  </script>
+  <link rel="canonical" href="https://localstorage-slim.niketpathak.com" />
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand" href="./">LocalStorage-Slim</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+        data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+        aria-label="Toggle navigation">
+        Menu
+        <i class="fa fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="npmjs.com/package/localstorage-slim" target="_blank" rel="noopener">Docs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#tutorial">Tutorial</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+
+  <header class="masthead" style="background-image: url('./assets/img/background-typeahead.jpg');">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="page-heading">
+            <h1>LocalStorage-Slim Demo</h1>
+            <span class="subheading">An ultra slim localstorage wrapper with support for ttl</span>
+            <script>
+              if (dev) {
+                document.write('<hr><h3>Dev mode</h3>');
+              } else {
+                // @todo: print alternate content
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 pd-btm-15">
+        <!-- Home Post List -->
+
+        <section>
+          <h2>Live Examples</h2>
+          <hr />
+          <br />
+          <h4>1. Test LocalStorage Slim here</h4>
+          <br />
+          The following code can be edited in place and its changes reflected in your Developer Tools).
+          <div class="eval-js">
+            // console.log(ls);
+            ls.set('key', 'some value');
+            const res = ls.get('key');
+
+            console.log('res =>', res);
+          </div>
+        </section>
+
+        <hr />
+
+      </div>
+
+      <!-- TAGS -->
+      <div class="col-lg-4 sidebar">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title">Popular Tags</h4>
+            <div class="chip chip-md success-color white-text example z-depth-2 mr-0">
+              <i class="fas fa-tags"></i>
+              &nbsp;&nbsp;Web Design
+            </div>
+            <div class="chip chip-md default-color white-text example z-depth-2 mr-0">
+              <i class="fab fa-css3-alt fa-lg"></i>
+              &nbsp;&nbsp;Css Tutorial
+            </div>
+            <div class="chip chip-md secondary-color white-text example z-depth-2 mr-0">
+              <i class="fab fa-bootstrap fa-lg"></i>
+              &nbsp;&nbsp;Bootstrap
+            </div>
+            <div class="chip chip-md indigo darken-1 white-text example z-depth-2 mr-0">
+              <i class="fab fa-facebook fa-lg"></i>
+              &nbsp;&nbsp;Facebook
+            </div>
+            <div class="chip chip-md purple-gradient white-text example z-depth-2 mr-0">
+              <i class="fas fa-headset fa-lg"></i>
+              &nbsp;&nbsp;DigitalFortress
+            </div>
+          </div>
+        </div>
+        <div class="divider-1 clearfix"></div>
+        
+        <div class="pubb">
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+          <!-- gospelmusic_sidebar_bottom -->
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1452475948444296" data-ad-slot="4434610513"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      </div>
+      <div class="divider-1 clearfix"></div>
+    </div>
+
+    <br />
+
+    <section class="subscribe-area pb-50 pt-70">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="subscribe-text mb-15">
+              <span>JOIN OUR NEWSLETTER</span>
+              <h2>Subscribe Newsletter</h2>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="subscribe-wrapper subscribe2-wrapper mb-15">
+              <div class="subscribe-form">
+                <input placeholder="your email address" type="email" />
+                <div>
+                  <button>subscribe <i class="fas fa-long-arrow-alt-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+
+  <hr />
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <ul class="list-inline text-center">
+            <li class="list-inline-item">
+              <a href="mailto:your-email@example.com">
+                <span class="fa-stack fa-lg">
+                  <i class="fas fa-circle fa-stack-2x"></i>
+                  <i class="far fa-envelope fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="list-inline-item">
+              <a href="https://gospelmusic.io">
+                <span class="fa-stack fa-lg">
+                  <i class="fas fa-circle fa-stack-2x"></i>
+                  <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="list-inline-item">
+              <a href="npmjs.com/package/localstorage-slim">
+                <span class="fa-stack fa-lg">
+                  <i class="fas fa-circle fa-stack-2x"></i>
+                  <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+
+            <li class="list-inline-item">
+              <a href="https://github.com/niketpathak/localstorage-slim">
+                <span class="fa-stack fa-lg">
+                  <i class="fas fa-circle fa-stack-2x"></i>
+                  <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+            </li>
+          </ul>
+          <p class="copyright text-muted">Copyright &copy; localstorage-slim 2020</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.2/build/highlight.min.js"></script>
+  <script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
+  <script>
+    if (dev) {
+      document.write('<script src="./../dist/localstorage-slim.js"><\/script>');
+    } else {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/localstorage-slim"><\/script>');
+    }
+  </script>
+  <script src="./assets/js/main.js"></script>
+</body>
+
+</html>
