@@ -92,8 +92,8 @@ const result2 = ls.get('key2');  // null
 
 ### API
 
-* [`ls.get()`](#lsset)
-* [`ls.set()`](#lsget)
+* [`ls.set()`](#lsset)
+* [`ls.get()`](#lsget)
 
 #### <a id="lsset">ls.`set()`</a>
 
