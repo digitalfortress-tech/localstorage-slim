@@ -56,5 +56,5 @@ const flush = () => {
 export const ls = {
   set,
   get,
-  flush,
+  // flush,
 };

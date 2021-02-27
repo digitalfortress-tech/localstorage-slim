@@ -8,13 +8,13 @@
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
-An ultra slim localstorage wrapper with support for ttl
+An ultra slim localstorage wrapper with optional support for ttl
 
 **localstorage-slim.js**
 
 - is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
 - is a very light-weight library [![](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/localstorage-slim?compression=gzip)](https://cdn.jsdelivr.net/npm/localstorage-slim)
-- supports optional TTL (i.e. expiry of data in LocalStorage)
+- supports TTL (i.e. expiry of data in LocalStorage)
 - checks LocalStorage browser support internally
 - Allows you to store data in any data format (strings, objects, arrays, ...) with checks for cyclic references
 ---
