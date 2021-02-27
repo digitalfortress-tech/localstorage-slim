@@ -26,13 +26,13 @@ describe('LS wrapper', () => {
       a: null,
       b: undefined,
       c: 'xyz',
-      d: new Date('01/20/2021 11:00:00'),
+      d: new Date(Date.UTC('2021', '1', '27', '11', '00', '00')),
       e: ['x', 1, { z: false }],
     };
     const outputObj = {
       a: null,
       c: 'xyz',
-      d: '2021-01-20T10:00:00.000Z',
+      d: '2021-02-27T11:00:00.000Z',
       e: ['x', 1, { z: false }],
     };
     ls.set('some_object', inputObj);
