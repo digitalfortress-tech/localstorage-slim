@@ -47,7 +47,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@1.0.0/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@1.2.0/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
@@ -86,7 +86,7 @@ const result2 = ls.get('key2');  // null
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. Note: `ttl` set using the `ls.get()` API overrides `global_ttl`  |null|
+|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** `ttl` set using the `ls.get()` API overrides `global_ttl`  |null|
 
 ---
 
@@ -99,9 +99,9 @@ const result2 = ls.get('key2');  // null
 
 Sets an item in the LocalStorage. It can accept 3 arguments
 
-1. Key: string [Required]
-2. Value: string|Date|Number|Object [Required]
-3. ttl: Number [Optional] (in seconds)
+1. `Key: string` **[Required]**
+2. `Value: string|Date|Number|Object|Boolean|Null` **[Required]**
+3. `ttl: Number` [Optional] (in seconds)
 
 Returns `false` if there was an error, else returns `undefined`.
 

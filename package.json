@@ -2,7 +2,7 @@
   "name": "localstorage-slim",
   "title": "localstorage-slim",
   "description": "An ultra slim localstorage wrapper with optional support for ttl",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/niketpathak/localstorage-slim",
   "license": "MIT",
   "scripts": {
