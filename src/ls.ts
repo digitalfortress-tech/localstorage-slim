@@ -5,6 +5,7 @@
  */
 
 import { isObject } from './helpers';
+import type { LocalStorageConfig } from './types';
 
 const supportsLS = (): boolean => {
   try {
@@ -18,11 +19,17 @@ const supportsLS = (): boolean => {
   return true;
 };
 
+const config: LocalStorageConfig = {
+  global_ttl: 0,
+}
+
 const set = (key: string, value: unknown, ttl?: number): void | boolean => {
   if (!supportsLS) return false;
 
+  const _ttl = ttl || config.global_ttl;
+
   try {
-    const val = ttl ? JSON.stringify({ value, ttl: Date.now() + +ttl }) : JSON.stringify(value);
+    const val = _ttl ? JSON.stringify({ value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
     localStorage.setItem(key, val);
   } catch (e) {
     // Sometimes stringify fails due to circular refs
@@ -33,13 +40,13 @@ const set = (key: string, value: unknown, ttl?: number): void | boolean => {
 const get = (key: string): null | unknown => {
   if (!supportsLS) return null;
 
-  const itemStr = localStorage.getItem(key);
+  const str = localStorage.getItem(key);
 
-  if (!itemStr) {
+  if (!str) {
     return null;
   }
 
-  const item = JSON.parse(itemStr);
+  const item = JSON.parse(str);
 
   if (isObject(item) && item.ttl && Date.now() > item.ttl) {
     localStorage.removeItem(key);
@@ -54,6 +61,7 @@ const flush = () => {
 };
 
 export const ls = {
+  config,
   set,
   get,
   // flush,

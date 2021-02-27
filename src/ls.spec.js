@@ -53,7 +53,31 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'some_value', 1);
     expect(ls.get('some_key')).toBe('some_value');
 
-    await new Promise((res) => setTimeout(res, 2));
+    await new Promise((res) => setTimeout(res, 1100));
     expect(ls.get('some_key')).toBe(null);
+  });
+
+  it('Calling get() should return null after global ttl expires', async () => {
+    ls.config.global_ttl = 1;
+    ls.set('some_key', 'some_value', 1);
+    expect(ls.get('some_key')).toBe('some_value');
+
+    await new Promise((res) => setTimeout(res, 1100));
+    expect(ls.get('some_key')).toBe(null);
+  });
+
+  it('ttl should take precedence over global_ttl', async () => {
+    ls.config.global_ttl = 1;
+    ls.set('some_key', 'some_value', 2);
+    expect(ls.get('some_key')).toBe('some_value');
+
+    // after global_ttl
+    await new Promise((res) => setTimeout(res, 1100));
+    expect(ls.get('some_key')).toBe('some_value');
+
+    // after ttl
+    await new Promise((res) => setTimeout(res, 1000));
+    expect(ls.get('some_key')).toBe(null);
+
   });
 });
