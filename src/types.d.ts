@@ -1,3 +1,3 @@
 export interface LocalStorageConfig {
-  global_ttl?: number;
+  global_ttl?: number | null;
 }

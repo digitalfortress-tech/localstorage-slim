@@ -55,13 +55,6 @@ The library will be available as a global object at `window.ls`
 
 Typical usage of localstorage-slim is as follows:
 
-
-#### Html
-
-```html
-<!-- include the library -->
-<script src="..." async></script>
-```
 #### Javascript
 
 ```javascript
@@ -74,7 +67,7 @@ const value = {
   e: 1234
 }
 ls.set('key1', value); // value can be anything (object, array, string, numbers,...)
-ls.set('key2', value, 5000); // with optional ttl in milliseconds
+ls.set('key2', value, 5); // with optional ttl in seconds
 
 // get from localstorage
 const result1 = ls.get('key1');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
@@ -84,6 +77,49 @@ const result2 = ls.get('key2');  // { a: "currentdate", b: "null", c: false, d: 
 // after 5 seconds
 const result2 = ls.get('key2');  // null
 
+```
+
+---
+## Configuration
+
+`LocalStorage-slim` provides you a config object (**`ls.config`**) which can be modified to suit your needs. The available config parameters are as follows:
+
+| Parameter | Description | Default |
+| --------- | ----------- | ------- |
+|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. Note: `ttl` set using the `ls.get()` API overrides `global_ttl`  |null|
+
+---
+
+### API
+
+* [`ls.get()`](#lsset)
+* [`ls.set()`](#lsget)
+
+#### <a id="lsset">ls.`set()`</a>
+
+Sets an item in the LocalStorage. It can accept 3 arguments
+
+1. Key: string [Required]
+2. Value: string|Date|Number|Object [Required]
+3. ttl: Number [Optional] (in seconds)
+
+Returns `false` if there was an error, else returns `undefined`.
+
+```javascript
+const res = ls.set('some_key', 'some_value');
+console.log('Value =>', res); // undefined (data persisted to LS)
+
+// with ttl
+ls.set('some_key', 'some_value', 5); // value expires after 5s
+```
+
+#### <a id="lsget">ls.`get()`</a>
+
+Retrieves the Data associated with the key stored in the LocalStorage. Requires the `key: string` as an argument. If the passed key does not exist, it returns `null`.
+
+```javascript
+const value = ls.get('some_key');
+console.log('Value =>', value); // value retrieved from LS
 ```
 
 ---

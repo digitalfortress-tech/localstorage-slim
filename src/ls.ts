@@ -20,7 +20,7 @@ const supportsLS = (): boolean => {
 };
 
 const config: LocalStorageConfig = {
-  global_ttl: 0,
+  global_ttl: null,
 }
 
 const set = (key: string, value: unknown, ttl?: number): void | boolean => {
