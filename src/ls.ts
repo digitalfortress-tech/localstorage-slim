@@ -19,6 +19,9 @@ const supportsLS = (): boolean => {
   return true;
 };
 
+// Apex
+const APX = String.fromCharCode(7e3);
+
 const config: LocalStorageConfig = {
   global_ttl: null,
 }
@@ -29,7 +32,7 @@ const set = (key: string, value: unknown, ttl?: number): void | boolean => {
   const _ttl = ttl || config.global_ttl;
 
   try {
-    const val = _ttl ? JSON.stringify({ value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
+    const val = _ttl ? JSON.stringify({ [APX]: value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
     localStorage.setItem(key, val);
   } catch (e) {
     // Sometimes stringify fails due to circular refs
@@ -48,11 +51,17 @@ const get = (key: string): null | unknown => {
 
   const item = JSON.parse(str);
 
-  if (isObject(item) && item.ttl && Date.now() > item.ttl) {
+  // if not using ttl, return immediately
+  if (!isObject(item) || (isObject(item) && !(APX in item))) {
+    return item;
+  }
+
+  if (Date.now() > item.ttl) {
     localStorage.removeItem(key);
     return null;
   }
-  return isObject(item) && 'value' in item ? item.value : item;
+
+  return item[APX];
 };
 
 const flush = () => {
