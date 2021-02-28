@@ -26,7 +26,7 @@ describe('LS wrapper', () => {
       a: null,
       b: undefined,
       c: 'xyz',
-      d: new Date(new Date('2021/2/27 11:00:00').toUTCString()),
+      d: new Date(new Date('2021/2/27 11:00:00 GMT+0100').toUTCString()),
       e: ['x', 1, { z: false }],
     };
     const outputObj = {
