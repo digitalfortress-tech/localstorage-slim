@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : i > this.previousTop &&
               (o('#mainNav').removeClass('is-visible'),
               s < i && !o('#mainNav').hasClass('is-fixed') && o('#mainNav').addClass('is-fixed')),
-          (this.previousTop = i);
+            (this.previousTop = i);
         }
       );
     }
@@ -92,41 +92,5 @@ var instance;
 // eslint-disable-next-line no-undef
 if (dev) {
   // eslint-disable-next-line no-undef
-  instance = typeahead({
-    input: input,
-    source: {
-      local: colors1,
-      identifier: 'name',
-      remote: {
-        url: 'https://restcountries.eu/rest/v2/name/%QUERY',
-        wildcard: '%QUERY',
-      },
-      prefetch: {
-        url: 'https://restcountries.eu/rest/v2/name/an',
-        startEvent: 'onFocus',
-      },
-      cache: {
-        enable: true,
-      },
-    },
-    highlight: true,
-    className: 'typeahead-example',
-    templates: {
-      // suggestion: (item) => {
-      //   return (
-      //     '<span class="preview" style="background-color:' +
-      //     item.hash +
-      //     '"></span><div class="text">' +
-      //     item.label +
-      //     '</div>'
-      //   );
-      // },
-      // group: (name) => {
-      //   return '<div class="custom-group">' + name + '</div>';
-      // },
-      header: 'Colors Found',
-      footer: '<a href="#">See more...</a>',
-      notFound: 'Oops...Nothing Found 😪 <br>Try another color...',
-    },
-  });
+  // ls.config.encrypt = true;
 }
