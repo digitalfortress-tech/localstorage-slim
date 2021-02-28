@@ -26,13 +26,13 @@ describe('LS wrapper', () => {
       a: null,
       b: undefined,
       c: 'xyz',
-      d: new Date(new Date('2021/2/27 11:00:00 GMT+0100').toUTCString()),
+      d: new Date('2021/2/27 11:00:00 GMT').toUTCString(),
       e: ['x', 1, { z: false }],
     };
     const outputObj = {
       a: null,
       c: 'xyz',
-      d: '2021-02-27T10:00:00.000Z',
+      d: 'Sat, 27 Feb 2021 11:00:00 GMT',
       e: ['x', 1, { z: false }],
     };
     ls.set('some_object', inputObj);
@@ -41,8 +41,17 @@ describe('LS wrapper', () => {
     expect(ls.get('some_object')).toStrictEqual(outputObj);
 
     // arrays
-    const inputArr = ['a', 1, null, true, false, undefined, new Date('01/20/2021 11:00:00'), { x: undefined }];
-    const outputArr = ['a', 1, null, true, false, null, '2021-01-20T10:00:00.000Z', {}];
+    const inputArr = [
+      'a',
+      1,
+      null,
+      true,
+      false,
+      undefined,
+      new Date('2021/2/27 11:00:00 GMT').toUTCString(),
+      { x: undefined, y: 'yellow' },
+    ];
+    const outputArr = ['a', 1, null, true, false, null, 'Sat, 27 Feb 2021 11:00:00 GMT', { y: 'yellow' }];
     ls.set('some_array', inputArr);
     expect(ls.get('some_array')).toStrictEqual(outputArr);
     ls.set('some_array', inputArr, 3);
