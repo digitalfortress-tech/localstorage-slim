@@ -24,7 +24,7 @@ const APX = String.fromCharCode(7e3);
 
 const config: LocalStorageConfig = {
   global_ttl: null,
-}
+};
 
 const set = (key: string, value: unknown, ttl?: number): void | boolean => {
   if (!supportsLS) return false;

@@ -26,13 +26,13 @@ describe('LS wrapper', () => {
       a: null,
       b: undefined,
       c: 'xyz',
-      d: new Date(Date.UTC('2021', '1', '27', '11', '00', '00')),
+      d: new Date(new Date('2021/2/27 11:00:00').toUTCString()),
       e: ['x', 1, { z: false }],
     };
     const outputObj = {
       a: null,
       c: 'xyz',
-      d: '2021-02-27T11:00:00.000Z',
+      d: '2021-02-27T10:00:00.000Z',
       e: ['x', 1, { z: false }],
     };
     ls.set('some_object', inputObj);
@@ -51,14 +51,14 @@ describe('LS wrapper', () => {
     // exceptional cases: setting ttl as value inside an object
     const exp = {
       ttl: 3,
-      value: 'xyz'
+      value: 'xyz',
     };
 
     ls.set('some_object', exp);
     expect(ls.get('some_object')).toStrictEqual(exp);
     ls.set('some_object', exp, 1);
     expect(ls.get('some_object')).toStrictEqual(exp);
-    
+
     // should expire after 1s and not after 3s
     await new Promise((res) => setTimeout(res, 1100));
     expect(ls.get('some_object')).toBe(null);
@@ -93,6 +93,5 @@ describe('LS wrapper', () => {
     // after ttl
     await new Promise((res) => setTimeout(res, 1000));
     expect(ls.get('some_key')).toBe(null);
-
   });
 });
