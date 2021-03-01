@@ -20,16 +20,17 @@ const supportsLS = (): boolean => {
 };
 
 // Apex
-const APX = String.fromCharCode(7e3);
+const APX = String.fromCharCode(0);
 
 // plain obsfuscation
-const obfus: Encrypter | Decrypter = (str, key = 75, encrypt = true) => {
+const obfus: Encrypter | Decrypter = (str, key, encrypt = true) => {
+  const secret = key || config.global_encrypt?.secret;
   let item;
   if (encrypt) {
     item = window.btoa(str as string);
-    return [...item].map(x => (String.fromCharCode(x.charCodeAt(0) + (key as number)))).join('');
+    return [...item].map(x => (String.fromCharCode(x.charCodeAt(0) + (secret as number)))).join('');
   } else {
-    item = [...str as string[]].map(x => (String.fromCharCode(x.charCodeAt(0) - (key as number)))).join('');
+    item = [...str as string[]].map(x => (String.fromCharCode(x.charCodeAt(0) - (secret as number)))).join('');
     return window.atob(item as string);
   }
 }
@@ -41,9 +42,12 @@ const decrypter: Decrypter = (str, key) => {
 
 const config: LocalStorageConfig = {
   global_ttl: null,
-  encrypt: false,
-  encrypter: encrypter,
-  decrypter: decrypter,
+  global_encrypt: {
+    enable: false,
+    encrypter: encrypter,
+    decrypter: decrypter,
+    secret: 75,
+  },
 };
 
 const set = (key: string, value: unknown, ttl?: number): void | boolean => {
@@ -53,8 +57,8 @@ const set = (key: string, value: unknown, ttl?: number): void | boolean => {
 
   try {
     let val = _ttl ? JSON.stringify({ [APX]: value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
-    if (config.encrypt) {
-      val = config.encrypter(val.toString());
+    if (config.global_encrypt?.enable) {
+      val = config.global_encrypt.encrypter(val);
     }
     localStorage.setItem(key, val);
   } catch (e) {
@@ -72,8 +76,8 @@ const get = (key: string): null | unknown => {
     return null;
   }
 
-  if (config.encrypt) {
-    str = config.decrypter(str as string);
+  if (config.global_encrypt?.enable) {
+    str = config.global_encrypt.decrypter(str as string);
   }
 
   const item = JSON.parse(str);

@@ -92,5 +92,6 @@ var instance;
 // eslint-disable-next-line no-undef
 if (dev) {
   // eslint-disable-next-line no-undef
-  // ls.config.encrypt = true;
+  ls.config.global_encrypt.enable = true;
+  test = ['ff', {'true': 343}, 2];
 }
