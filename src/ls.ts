@@ -22,15 +22,21 @@ const supportsLS = (): boolean => {
 // Apex
 const APX = String.fromCharCode(7e3);
 
-// encryption/decryption  //@todo: setup string rotation
-const encrypter: Encrypter = (str, places = 5) => {
-  const val = window.btoa(str as string);
-  return val;
-};
+// plain obsfuscation
+const obfus: Encrypter | Decrypter = (str, key = 75, encrypt = true) => {
+  let item;
+  if (encrypt) {
+    item = window.btoa(str as string);
+    return [...item].map(x => (String.fromCharCode(x.charCodeAt(0) + (key as number)))).join('');
+  } else {
+    item = [...str as string[]].map(x => (String.fromCharCode(x.charCodeAt(0) - (key as number)))).join('');
+    return window.atob(item as string);
+  }
+}
 
-const decrypter: Decrypter = (str) => {
-  const val = window.atob(str as string);
-  return val;
+const encrypter: Encrypter = obfus;
+const decrypter: Decrypter = (str, key) => {
+  return obfus(str, key, false);
 };
 
 const config: LocalStorageConfig = {
