@@ -100,9 +100,14 @@ const flush = () => {
   // @todo: implement flush
 };
 
+const clear = () => {
+  // @todo: clear all storage
+}
+
 export const ls = {
   config,
   set,
   get,
   // flush,
+  // clear,
 };
