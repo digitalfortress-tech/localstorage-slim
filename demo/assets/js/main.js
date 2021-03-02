@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : i > this.previousTop &&
               (o('#mainNav').removeClass('is-visible'),
               s < i && !o('#mainNav').hasClass('is-fixed') && o('#mainNav').addClass('is-fixed')),
-            (this.previousTop = i);
+          (this.previousTop = i);
         }
       );
     }
@@ -43,55 +43,11 @@ document.addEventListener('DOMContentLoaded', function () {
 /************************************** CUSTOM *******************************************/
 /*****************************************************************************************/
 
-var colors = [
-  { label: 'Red', value: 'RD', hash: 'red' },
-  { label: 'Blue', value: 'BL', hash: 'blue', group: 'Shades of Blue' },
-  { label: 'Blue Dark', value: 'DBL', hash: 'darkblue', group: 'Shades of Blue' },
-  { label: 'Blue Darker', value: 'DBL', hash: 'midnightblue', group: 'Shades of Blue' },
-  { label: 'Blue Light', value: 'LBL', hash: 'cadetblue', group: 'Shades of Blue' },
-  { label: 'Blue Extra Light', value: 'XLBL', hash: 'aliceblue', group: 'Shades of Blue' },
-  { label: 'Yellow', value: 'YW', hash: 'yellow' },
-  { label: 'Gold', value: 'GD', hash: 'gold' },
-  { label: 'Silver', value: 'SV', hash: 'silver' },
-  { label: 'Orange', value: 'OR', hash: 'orange' },
-  { label: 'Green', value: 'GR', hash: 'green' },
-  { label: 'White', value: 'WH', hash: 'white' },
-  { label: 'Pink', value: 'PI', hash: 'pink' },
-  { label: 'Purple', value: 'PR', hash: 'purple' },
-  { label: 'Grey', value: 'GR', hash: 'grey' },
-  { label: 'Brown', value: 'BR', hash: 'brown' },
-  { label: 'Black', value: 'BK', hash: 'black', group: 'Shades of Black' },
-  { label: 'Black Light', value: 'LBK', hash: '#352e2e', group: 'Shades of Black' },
-];
-
-var colors1 = [
-  { name: 'Red', value: 'RD', hash: 'red' },
-  { name: 'Blue', value: 'BL', hash: 'blue', group: 'Shades of Blue' },
-  { name: 'Blue Dark', value: 'DBL', hash: 'darkblue', group: 'Shades of Blue' },
-  { name: 'Blue Darker', value: 'DBL', hash: 'mnamenightblue', group: 'Shades of Blue' },
-  { name: 'Blue Light', value: 'LBL', hash: 'cadetblue', group: 'Shades of Blue' },
-  { name: 'Blue Extra Light', value: 'XLBL', hash: 'aliceblue', group: 'Shades of Blue' },
-  { name: 'Yellow', value: 'YW', hash: 'yellow' },
-  { name: 'Gold', value: 'GD', hash: 'gold' },
-  { name: 'Silver', value: 'SV', hash: 'silver' },
-  { name: 'Orange', value: 'OR', hash: 'orange' },
-  { name: 'Green', value: 'GR', hash: 'green' },
-  { name: 'White', value: 'WH', hash: 'white' },
-  { name: 'Pink', value: 'PI', hash: 'pink' },
-  { name: 'Purple', value: 'PR', hash: 'purple' },
-  { name: 'Grey', value: 'GR', hash: 'grey' },
-  { name: 'Brown', value: 'BR', hash: 'brown' },
-  { name: 'Black', value: 'BK', hash: 'black', group: 'Shades of Black' },
-  { name: 'Black Light', value: 'LBK', hash: '#352e2e', group: 'Shades of Black' },
-];
-
-var input = document.getElementById('searchInput');
-
-var instance;
+let test;
 
 // eslint-disable-next-line no-undef
 if (dev) {
   // eslint-disable-next-line no-undef
   ls.config.global_encrypt.enable = true;
-  test = ['ff', {'true': 343}, 2];
+  test = ['ff', { true: 343 }, 2];
 }

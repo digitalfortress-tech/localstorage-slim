@@ -22,20 +22,14 @@ const supportsLS = (): boolean => {
 // Apex
 const APX = String.fromCharCode(0);
 
-// plain obsfuscation
+// tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) => {
   const secret = key || config.global_encrypt?.secret;
-  let item;
-  if (encrypt) {
-    item = window.btoa(str as string);
-    return [...item].map(x => (String.fromCharCode(x.charCodeAt(0) + (secret as number)))).join('');
-  } else {
-    item = [...str as string[]].map(x => (String.fromCharCode(x.charCodeAt(0) - (secret as number)))).join('');
-    return window.atob(item as string);
-  }
-}
+  return encrypt
+    ? [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) + (secret as number))).join('')
+    : [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (secret as number))).join('');
+};
 
-const encrypter: Encrypter = obfus;
 const decrypter: Decrypter = (str, key) => {
   return obfus(str, key, false);
 };
@@ -44,7 +38,7 @@ const config: LocalStorageConfig = {
   global_ttl: null,
   global_encrypt: {
     enable: false,
-    encrypter: encrypter,
+    encrypter: obfus,
     decrypter: decrypter,
     secret: 75,
   },
@@ -102,7 +96,7 @@ const flush = () => {
 
 const clear = () => {
   // @todo: clear all storage
-}
+};
 
 export const ls = {
   config,
