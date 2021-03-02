@@ -1,4 +1,4 @@
-export const NOOP = (...args: unknown[]): void => undefined;
+export const NOOP = (...args: unknown[]): unknown => undefined;
 
 export const escapeRegExp = (text: string): string => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 

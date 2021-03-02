@@ -4,8 +4,8 @@
  * MIT License
  */
 
-import { isObject } from './helpers';
-import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
+import { isObject, NOOP } from './helpers';
+import type { Encrypt, Encrypter, Decrypter, LocalStorageConfig } from './types';
 
 const supportsLS = (): boolean => {
   try {
@@ -41,18 +41,23 @@ const config: LocalStorageConfig = {
     encrypter: obfus,
     decrypter: decrypter,
     secret: 75,
-  },
+  } as Encrypt,
 };
 
-const set = (key: string, value: unknown, ttl?: number): void | boolean => {
+const set = (key: string, value: unknown, ttl?: number, encrypt: Encrypt = {}): void | boolean => {
   if (!supportsLS) return false;
 
   const _ttl = ttl || config.global_ttl;
+  const _encrypt = {
+    ...config.global_encrypt,
+    ...encrypt,
+    ...{ enable: encrypt.enable === false ? false : encrypt.enable || config.global_encrypt?.enable },
+  };
 
   try {
     let val = _ttl ? JSON.stringify({ [APX]: value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
-    if (config.global_encrypt?.enable) {
-      val = config.global_encrypt.encrypter(val);
+    if (_encrypt.enable) {
+      val = (_encrypt.encrypter || NOOP)(val, _encrypt.secret) as string;
     }
     localStorage.setItem(key, val);
   } catch (e) {
@@ -61,7 +66,7 @@ const set = (key: string, value: unknown, ttl?: number): void | boolean => {
   }
 };
 
-const get = (key: string): null | unknown => {
+const get = (key: string, decrypt: Encrypt = {}): null | unknown => {
   if (!supportsLS) return null;
 
   let str = localStorage.getItem(key);
@@ -70,8 +75,14 @@ const get = (key: string): null | unknown => {
     return null;
   }
 
-  if (config.global_encrypt?.enable) {
-    str = config.global_encrypt.decrypter(str as string);
+  const _decrypt = {
+    ...config.global_encrypt,
+    ...decrypt,
+    enable: decrypt.enable === false ? false : decrypt.enable || config.global_encrypt?.enable,
+  };
+
+  if (_decrypt.enable) {
+    str = (_decrypt.decrypter || NOOP)(str, _decrypt.secret) as string;
   }
 
   const item = JSON.parse(str);

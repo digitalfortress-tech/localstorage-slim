@@ -2,10 +2,10 @@ export type Encrypter = (...args: unknown[]) => string;
 export type Decrypter = (...args: unknown[]) => string;
 
 export interface Encrypt {
-  enable: false;
-  encrypter: Encrypter;
-  decrypter: Decrypter;
-  secret: unknown;
+  enable?: boolean;
+  encrypter?: Encrypter;
+  decrypter?: Decrypter;
+  secret?: unknown;
 }
 
 export interface LocalStorageConfig {
