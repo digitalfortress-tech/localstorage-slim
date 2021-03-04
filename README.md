@@ -15,6 +15,7 @@ An ultra slim localstorage wrapper with optional support for ttl
 - is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
 - is a very light-weight library [![](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/localstorage-slim?compression=gzip)](https://cdn.jsdelivr.net/npm/localstorage-slim)
 - supports TTL (i.e. expiry of data in LocalStorage)
+- supports encryption
 - checks LocalStorage browser support internally
 - Allows you to store data in any data format (strings, objects, arrays, ...) with checks for cyclic references
 ---
@@ -86,8 +87,40 @@ const result2 = ls.get('key2');  // null
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** `ttl` set using the `ls.get()` API overrides `global_ttl`  |null|
+|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** `ttl` set using the `ls.set()` API overrides `global_ttl`  |null|
+|`global_encrypt` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** The `encrypt` option set using the `ls.set()` API overrides `global_encrypt` config option  | { enable: false }|
+---
 
+#### <a id="lsset">Encryption/Decryption</a>
+
+LocalStorage-slim allows you to encrypt the data that will be stored in your localStorage.
+
+```javascript
+// enable encryption
+ls.global_encrypt.enable = true;
+
+// optionally use a different secret
+ls.global_encrypt.secret = 57; // defaults to 75
+```
+Setting this single flag will ensure that the data stored in the localStorage will be unreadable by majority of your users. Note that the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
+
+To do so, update the config option `global_encrypt` as follows -
+```javascript
+ls.global_encrypt = {
+  enable: true, // boolean
+  encrypter: (text: string, secret: string): string => 'encrypted string',
+  decrypter: (encryptedString: string, secret: string): string => 'original string',
+  secret: 'secretKey', // string|number
+}
+
+// use ls normally
+ls.set(); // internally calls encrypter()
+ls.get(); // internally calls decrypter()
+```
+As seen above, you can provide 2 functions - `encrypter` and `decrypter` with your own implementation of encryption/decryption
+to secure your data. 
+
+**Note**: It is recommended to not save user passwords or credit card details in LocalStorage (encrypted or not).
 ---
 
 ### API
@@ -97,11 +130,12 @@ const result2 = ls.get('key2');  // null
 
 #### <a id="lsset">ls.`set()`</a>
 
-Sets an item in the LocalStorage. It can accept 3 arguments
+Sets an item in the LocalStorage. It can accept 4 arguments
 
 1. `Key: string` **[Required]**
 2. `Value: string|Date|Number|Object|Boolean|Null` **[Required]**
 3. `ttl: Number` [Optional] (in seconds)
+4. `encrypt: Encrypt` [Optional] { enable: boolean, encrypter: Fn(), decrypter: Fn(), secret: string|number}
 
 Returns `false` if there was an error, else returns `undefined`.
 
@@ -111,15 +145,24 @@ console.log('Value =>', res); // undefined (data persisted to LS)
 
 // with ttl
 ls.set('some_key', 'some_value', 5); // value expires after 5s
+
+// with encryption (to encrypt particular fields)
+ls.set('some_key', 'some_value', null, { enable: true });
 ```
 
 #### <a id="lsget">ls.`get()`</a>
 
 Retrieves the Data associated with the key stored in the LocalStorage. Requires the `key: string` as an argument. If the passed key does not exist, it returns `null`.
 
+It also accepts a 2nd optional parameter (`encrypt: Encrypt`).
+
 ```javascript
 const value = ls.get('some_key');
 console.log('Value =>', value); // value retrieved from LS
+
+// When a particular field is encrypted, and it needs decryption
+ls.get('some_key', { enable: true });
+// Note: while using global_encrypt, the above option is not required
 ```
 
 ---

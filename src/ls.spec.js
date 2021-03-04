@@ -113,6 +113,15 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key')).toBe('value');
   });
 
+  it('should encrypt only a particular field', async () => {
+    ls.config.global_encrypt.enable = false;
+    ls.set('some_key', 'value', 0, { enable: true });
+    expect(localStorage.getItem('some_key')).toBe('mÁ¬·À°m');
+    // throw error if {enable:false} flag was not provided while getting a key-value pair which was excluded from encryption
+    expect(() => { ls.get('some_key'); }).toThrow(SyntaxError);
+    expect(ls.get('some_key', { enable: true })).toBe('value');
+  });
+
   it('local encrypt enable param should take precedence over global_encrypt config', async () => {
     ls.config.global_encrypt.enable = true;
     ls.set('some_key', 'value', 0, { enable: false });
