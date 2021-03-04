@@ -3,6 +3,8 @@ import { ls } from './ls';
 describe('LS wrapper', () => {
   afterEach(() => {
     global.localStorage.clear();
+    ls.config.global_ttl = null;
+    ls.config.global_encrypt.enable = false;
   });
 
   it('Calling get() with non-existent key should return null', () => {
@@ -102,5 +104,33 @@ describe('LS wrapper', () => {
     // after ttl
     await new Promise((res) => setTimeout(res, 1000));
     expect(ls.get('some_key')).toBe(null);
+  });
+
+  it('should encrypt the data with default implementation when global_encrypt is enabled', async () => {
+    ls.config.global_encrypt.enable = true;
+    ls.set('some_key', 'value');
+    expect(localStorage.getItem('some_key')).toBe('mÁ¬·À°m');
+    expect(ls.get('some_key')).toBe('value');
+  });
+
+  it('local encrypt enable param should take precedence over global_encrypt config', async () => {
+    ls.config.global_encrypt.enable = true;
+    ls.set('some_key', 'value', 0, { enable: false });
+    expect(localStorage.getItem('some_key')).toBe("\"value\"");
+
+    // throw error if {enable:false} flag was not provided while getting a key-value pair which was excluded from encryption
+    expect(() => { ls.get('some_key'); }).toThrow(SyntaxError);
+    expect(ls.get('some_key', { enable: false })).toBe('value');
+  });
+
+  it('should encrypt the data with custom implementation', async () => {
+    ls.config.global_encrypt.enable = true;
+    ls.config.global_encrypt.encrypter = jest.fn(() => 'mÁ¬·À°m');
+    ls.config.global_encrypt.decrypter = jest.fn(() => '\"value\"');
+    
+    ls.set('some_key', 'value');
+    expect(ls.config.global_encrypt.encrypter).toHaveBeenCalled();
+    expect(ls.get('some_key')).toBe('value');
+    expect(ls.config.global_encrypt.decrypter).toHaveBeenCalled();
   });
 });
