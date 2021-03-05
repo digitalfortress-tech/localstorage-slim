@@ -8,14 +8,14 @@
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
-An ultra slim localstorage wrapper with optional support for ttl
+An ultra slim localstorage wrapper with optional support for ttl and encryption
 
 **localstorage-slim.js**
 
 - is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
 - is a very light-weight library [![](http://img.badgesize.io/https://cdn.jsdelivr.net/npm/localstorage-slim?compression=gzip)](https://cdn.jsdelivr.net/npm/localstorage-slim)
 - supports TTL (i.e. expiry of data in LocalStorage)
-- supports encryption
+- supports encryption/decryption
 - checks LocalStorage browser support internally
 - Allows you to store data in any data format (strings, objects, arrays, ...) with checks for cyclic references
 ---
@@ -88,10 +88,10 @@ const result2 = ls.get('key2');  // null
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 |`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** `ttl` set using the `ls.set()` API overrides `global_ttl`  |null|
-|`global_encrypt` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** The `encrypt` option set using the `ls.set()` API overrides `global_encrypt` config option  | { enable: false }|
+|`global_encrypt` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** The `encrypt` option set using the `ls.set()` API overrides `global_encrypt` config option  | {enable:false}|
 ---
 
-#### <a id="lsset">Encryption/Decryption</a>
+#### <a id="encryption">Encryption/Decryption</a>
 
 LocalStorage-slim allows you to encrypt the data that will be stored in your localStorage.
 
@@ -114,19 +114,23 @@ ls.global_encrypt = {
 }
 
 // use ls normally
-ls.set(); // internally calls encrypter()
-ls.get(); // internally calls decrypter()
+ls.set(); // internally calls ls.global_encrypt.encrypter();
+ls.get(); // internally calls ls.global_encrypt.decrypter();
 ```
-As seen above, you can provide 2 functions - `encrypter` and `decrypter` with your own implementation of encryption/decryption
-to secure your data. 
+You can override the above 2 functions - `encrypter` and `decrypter` with your own implementation of encryption/decryption logic to secure your data. 
 
-**Note**: It is recommended to not save user passwords or credit card details in LocalStorage (encrypted or not).
+**Note**: It is recommended that you **do not** save user passwords or credit card details in LocalStorage (whether they be encrypted or not).
+
 ---
 
-### API
+## API
+
+The Api is very similar to that of the native `LocalStorage API`.
 
 * [`ls.set()`](#lsset)
 * [`ls.get()`](#lsget)
+
+---
 
 #### <a id="lsset">ls.`set()`</a>
 
