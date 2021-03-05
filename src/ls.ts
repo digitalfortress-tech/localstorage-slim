@@ -24,7 +24,7 @@ const APX = String.fromCharCode(0);
 
 // tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) => {
-  const secret = key || config.global_encrypt?.secret;
+  const secret = key || config.encryption?.secret;
   return encrypt
     ? [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) + (secret as number))).join('')
     : [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (secret as number))).join('');
@@ -35,8 +35,8 @@ const decrypter: Decrypter = (str, key) => {
 };
 
 const config: LocalStorageConfig = {
-  global_ttl: null,
-  global_encrypt: {
+  ttl: null,
+  encryption: {
     enable: false,
     encrypter: obfus,
     decrypter: decrypter,
@@ -47,11 +47,11 @@ const config: LocalStorageConfig = {
 const set = (key: string, value: unknown, ttl?: number, encrypt: Encrypt = {}): void | boolean => {
   if (!supportsLS) return false;
 
-  const _ttl = ttl || config.global_ttl;
+  const _ttl = ttl || config.ttl;
   const _encrypt = {
-    ...config.global_encrypt,
+    ...config.encryption,
     ...encrypt,
-    ...{ enable: encrypt.enable === false ? false : encrypt.enable || config.global_encrypt?.enable },
+    ...{ enable: encrypt.enable === false ? false : encrypt.enable || config.encryption?.enable },
   };
 
   try {
@@ -76,9 +76,9 @@ const get = (key: string, decrypt: Encrypt = {}): null | unknown => {
   }
 
   const _decrypt = {
-    ...config.global_encrypt,
+    ...config.encryption,
     ...decrypt,
-    enable: decrypt.enable === false ? false : decrypt.enable || config.global_encrypt?.enable,
+    enable: decrypt.enable === false ? false : decrypt.enable || config.encryption?.enable,
   };
 
   if (_decrypt.enable) {

@@ -9,6 +9,6 @@ export interface Encrypt {
 }
 
 export interface LocalStorageConfig {
-  global_ttl?: number | null;
-  global_encrypt?: Encrypt;
+  ttl?: number | null;
+  encryption?: Encrypt;
 }

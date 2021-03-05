@@ -17,7 +17,7 @@ An ultra slim localstorage wrapper with optional support for ttl and encryption
 - supports TTL (i.e. expiry of data in LocalStorage)
 - supports encryption/decryption
 - checks LocalStorage browser support internally
-- Allows you to store data in any data format (strings, objects, arrays, ...) with checks for cyclic references
+- Allows you to store data in multiple formats (numbers, strings, objects, arrays, ...) with checks for cyclic references
 ---
 
 ## Install
@@ -87,8 +87,8 @@ const result2 = ls.get('key2');  // null
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`global_ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** `ttl` set using the `ls.set()` API overrides `global_ttl`  |null|
-|`global_encrypt` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** The `encrypt` option set using the `ls.set()` API overrides `global_encrypt` config option  | {enable:false}|
+|`ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** Use the `ls.set()/ls.get()` API with the necessary parameters if you wish to override this **global** `ttl`.  |null|
+|`encryption` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** Use the `ls.set()/ls.get()` API with the necessary parameters if you wish to override this **global** `encryption` config option  | {enable:false}|
 ---
 
 #### <a id="encryption">Encryption/Decryption</a>
@@ -97,27 +97,35 @@ LocalStorage-slim allows you to encrypt the data that will be stored in your loc
 
 ```javascript
 // enable encryption
-ls.global_encrypt.enable = true;
+ls.encryption.enable = true;
 
-// optionally use a different secret
-ls.global_encrypt.secret = 57; // defaults to 75
+// optionally use a different secret key
+ls.encryption.secret = 57; // defaults to 75
 ```
-Setting this single flag will ensure that the data stored in the localStorage will be unreadable by majority of your users. Note that the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
+Setting this single flag will ensure that the data stored in the localStorage will be unreadable by majority of your users. **Be aware** of that fact the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
 
-To do so, update the config option `global_encrypt` as follows -
+To use a library like CryptoJS, update the `encryption` config option as follows -
 ```javascript
-ls.global_encrypt = {
+ls.encryption = {
   enable: true, // boolean
   encrypter: (text: string, secret: string): string => 'encrypted string',
   decrypter: (encryptedString: string, secret: string): string => 'original string',
   secret: 'secretKey', // string|number
 }
 
-// use ls normally
-ls.set(); // internally calls ls.global_encrypt.encrypter();
-ls.get(); // internally calls ls.global_encrypt.decrypter();
 ```
 You can override the above 2 functions - `encrypter` and `decrypter` with your own implementation of encryption/decryption logic to secure your data. 
+
+```javascript
+// Then, use ls as you would normally
+ls.set(...); // internally calls ls.encryption.encrypter(...);
+ls.get(...); // internally calls ls.encryption.decrypter(...);
+
+// you can provide a different secret each time as well
+ls.set("key", "value", 0, { secret: 'xyz'});
+ls.get("key", { secret: 'xyz'});
+
+```
 
 **Note**: It is recommended that you **do not** save user passwords or credit card details in LocalStorage (whether they be encrypted or not).
 
@@ -145,7 +153,7 @@ Returns `false` if there was an error, else returns `undefined`.
 
 ```javascript
 const res = ls.set('some_key', 'some_value');
-console.log('Value =>', res); // undefined (data persisted to LS)
+console.log('Value =>', res); // returns undefined if successful or false if there was a problem
 
 // with ttl
 ls.set('some_key', 'some_value', 5); // value expires after 5s
@@ -166,7 +174,7 @@ console.log('Value =>', value); // value retrieved from LS
 
 // When a particular field is encrypted, and it needs decryption
 ls.get('some_key', { enable: true });
-// Note: while using global_encrypt, the above option is not required
+// Note: while using encryption, the above option is not required
 ```
 
 ---
