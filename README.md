@@ -83,7 +83,7 @@ const result2 = ls.get('key2');  // null
 ---
 ## <a id="config">Configuration</a>
 
-`LocalStorage-slim` provides you a config object (**`ls.config`**) which can be modified to suit your needs. The available config parameters are as follows:
+`LocalStorage-slim` provides you a config object (**`ls.config`**) which can be modified to suit your needs. The available config parameters are as follows and all of them are completely **OPTIONAL**
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
@@ -105,7 +105,7 @@ ls.enableEncryption = true;
 // optionally use a different secret key
 ls.secret = 57;
 ```
-Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of that fact the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
 
 To use a library like CryptoJS, update the following config options -
 ```javascript
@@ -156,35 +156,36 @@ Sets an item in the LocalStorage. It can accept 4 arguments
 Returns `false` if there was an error, else returns `undefined`.
 
 ```javascript
-const res = ls.set('some_key', 'some_value');
+const res = ls.set('key', 'value');
 console.log('Value =>', res); // returns undefined if successful or false if there was a problem
 
 // with ttl
 ls.config.ttl = 3; // global ttl set to 3 seconds
-ls.set('some_key', 'some_value', { ttl: 5 }); // value expires after 5s (this overrides global ttl)
+ls.set('key', 'value'); // value expires after 3s
+ls.set('key', 'value', { ttl: 5 }); // value expires after 5s (overrides global ttl)
 
 // with encryption (to encrypt particular fields)
-ls.set('some_key', 'some_value', { enableEncryption: true });
+ls.set('key', 'value', { enableEncryption: true });
 ```
 
 #### <a id="lsget">ls.`get()`</a>
 
 Retrieves the Data associated with the key stored in the LocalStorage. It accepts 2 arguments -
 
-1. `key: string` **[Required]** - The key with which the value should be associated
+1. `key: string` **[Required]** - The key with which the value is associated
 2. `localConfig: Config` **[Optional]** - This parameter takes the same parameters as the [global config](#config) object
 
 If the passed key does not exist, it returns `null`.
 
 ```javascript
-const value = ls.get('some_key');
+const value = ls.get('key');
 console.log('Value =>', value); // value retrieved from LS
 
 // if ttl was set
-ls.get('some_key'); // returns the value if ttl has not expired, else returns null
+ls.get('key'); // returns the value if ttl has not expired, else returns null
 
 // when a particular field is encrypted, and it needs decryption
-ls.get('some_key', { enableEncryption: true });
+ls.get('key', { enableEncryption: true });
 
 // get decrypted value when global encryption is enabled
 ls.config.enableEncryption = true;
