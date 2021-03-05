@@ -48,7 +48,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@1.4.0/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@1.5.0/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
@@ -68,7 +68,7 @@ const value = {
   e: 1234
 }
 ls.set('key1', value); // value can be anything (object, array, string, numbers,...)
-ls.set('key2', value, 5); // with optional ttl in seconds
+ls.set('key2', value, { ttl: 5 }); // with optional ttl in seconds
 
 // get from localstorage
 const result1 = ls.get('key1');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
@@ -81,14 +81,17 @@ const result2 = ls.get('key2');  // null
 ```
 
 ---
-## Configuration
+## <a id="config">Configuration</a>
 
 `LocalStorage-slim` provides you a config object (**`ls.config`**) which can be modified to suit your needs. The available config parameters are as follows:
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`ttl` [Optional]|Allows you to set a global timeout which will be used for all the data stored in localstorage. **Note:** Use the `ls.set()/ls.get()` API with the necessary parameters if you wish to override this **global** `ttl`.  |null|
-|`encryption` [Optional]|Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Note:** Use the `ls.set()/ls.get()` API with the necessary parameters if you wish to override this **global** `encryption` config option  | {enable:false}|
+|`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localstorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
+|`enableEncryption?: boolean` |Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API  | false|
+|`encrypter?: (input: string, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
+|`decrypter?: (encryptedString: string, secret: string): string`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
+|`secret: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  |75|
 ---
 
 #### <a id="encryption">Encryption/Decryption</a>
@@ -97,32 +100,34 @@ LocalStorage-slim allows you to encrypt the data that will be stored in your loc
 
 ```javascript
 // enable encryption
-ls.encryption.enable = true;
+ls.enableEncryption = true;
 
 // optionally use a different secret key
-ls.encryption.secret = 57; // defaults to 75
+ls.secret = 57;
 ```
-Setting this single flag will ensure that the data stored in the localStorage will be unreadable by majority of your users. **Be aware** of that fact the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of that fact the default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
 
-To use a library like CryptoJS, update the `encryption` config option as follows -
+To use a library like CryptoJS, update the following config options -
 ```javascript
-ls.encryption = {
-  enable: true, // boolean
-  encrypter: (text: string, secret: string): string => 'encrypted string',
-  decrypter: (encryptedString: string, secret: string): string => 'original string',
-  secret: 'secretKey', // string|number
-}
+// enable encryption
+ls.config.enableEncryption = true;
+// override encrypter function
+ls.config.encrypter = (text: string, secret: string): string => 'encrypted string';
+// override decrypter function
+ls.config.decrypter = (encryptedString: string, secret: string): string => 'original string';
+// set a secret
+ls.config.secret = 'secretKey';
 
 ```
-You can override the above 2 functions - `encrypter` and `decrypter` with your own implementation of encryption/decryption logic to secure your data. 
+As seen, you can easily override the `encrypter` and `decrypter` functions with your own implementation of encryption/decryption logic to secure your data.
 
 ```javascript
-// Then, use ls as you would normally
-ls.set(...); // internally calls ls.encryption.encrypter(...);
-ls.get(...); // internally calls ls.encryption.decrypter(...);
+// Then, use ls as you normally would
+ls.set(...); // internally calls ls.config.encrypter(...);
+ls.get(...); // internally calls ls.config.decrypter(...);
 
-// you can provide a different secret each time as well
-ls.set("key", "value", 0, { secret: 'xyz'});
+// you can provide a different secret each time as well.
+ls.set("key", "value", { secret: 'xyz'});
 ls.get("key", { secret: 'xyz'});
 
 ```
@@ -144,10 +149,9 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 Sets an item in the LocalStorage. It can accept 4 arguments
 
-1. `Key: string` **[Required]**
-2. `Value: string|Date|Number|Object|Boolean|Null` **[Required]**
-3. `ttl: Number` [Optional] (in seconds)
-4. `encrypt: Encrypt` [Optional] { enable: boolean, encrypter: Fn(), decrypter: Fn(), secret: string|number}
+1. `key: string` **[Required]** - The key with which the value should be associated
+2. `value: string|Date|Number|Object|Boolean|Null` **[Required]** - The value to be stored
+3. `localConfig: Config` **[Optional]** - This parameter takes the same parameters as the [global config](#config) object
 
 Returns `false` if there was an error, else returns `undefined`.
 
@@ -156,25 +160,35 @@ const res = ls.set('some_key', 'some_value');
 console.log('Value =>', res); // returns undefined if successful or false if there was a problem
 
 // with ttl
-ls.set('some_key', 'some_value', 5); // value expires after 5s
+ls.config.ttl = 3; // global ttl set to 3 seconds
+ls.set('some_key', 'some_value', { ttl: 5 }); // value expires after 5s (this overrides global ttl)
 
 // with encryption (to encrypt particular fields)
-ls.set('some_key', 'some_value', null, { enable: true });
+ls.set('some_key', 'some_value', { enableEncryption: true });
 ```
 
 #### <a id="lsget">ls.`get()`</a>
 
-Retrieves the Data associated with the key stored in the LocalStorage. Requires the `key: string` as an argument. If the passed key does not exist, it returns `null`.
+Retrieves the Data associated with the key stored in the LocalStorage. It accepts 2 arguments -
 
-It also accepts a 2nd optional parameter (`encrypt: Encrypt`).
+1. `key: string` **[Required]** - The key with which the value should be associated
+2. `localConfig: Config` **[Optional]** - This parameter takes the same parameters as the [global config](#config) object
+
+If the passed key does not exist, it returns `null`.
 
 ```javascript
 const value = ls.get('some_key');
 console.log('Value =>', value); // value retrieved from LS
 
-// When a particular field is encrypted, and it needs decryption
-ls.get('some_key', { enable: true });
-// Note: while using encryption, the above option is not required
+// if ttl was set
+ls.get('some_key'); // returns the value if ttl has not expired, else returns null
+
+// when a particular field is encrypted, and it needs decryption
+ls.get('some_key', { enableEncryption: true });
+
+// get decrypted value when global encryption is enabled
+ls.config.enableEncryption = true;
+ls.get('key'); // returns decrypted value
 ```
 
 ---

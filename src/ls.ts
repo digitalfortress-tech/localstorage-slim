@@ -5,7 +5,7 @@
  */
 
 import { isObject, NOOP } from './helpers';
-import type { Encrypt, Encrypter, Decrypter, LocalStorageConfig } from './types';
+import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
 
 const supportsLS = (): boolean => {
   try {
@@ -24,7 +24,7 @@ const APX = String.fromCharCode(0);
 
 // tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) => {
-  const secret = key || config.encryption?.secret;
+  const secret = key || config.secret;
   return encrypt
     ? [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) + (secret as number))).join('')
     : [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (secret as number))).join('');
@@ -36,28 +36,29 @@ const decrypter: Decrypter = (str, key) => {
 
 const config: LocalStorageConfig = {
   ttl: null,
-  encryption: {
-    enable: false,
-    encrypter: obfus,
-    decrypter: decrypter,
-    secret: 75,
-  } as Encrypt,
+  enableEncryption: false,
+  encrypter: obfus,
+  decrypter: decrypter,
+  secret: 75,
 };
 
-const set = (key: string, value: unknown, ttl?: number, encrypt: Encrypt = {}): void | boolean => {
+const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}): void | boolean => {
   if (!supportsLS) return false;
 
-  const _ttl = ttl || config.ttl;
-  const _encrypt = {
-    ...config.encryption,
-    ...encrypt,
-    ...{ enable: encrypt.enable === false ? false : encrypt.enable || config.encryption?.enable },
+  const _conf = {
+    ...config,
+    ...localConfig,
+    enable: localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
   try {
-    let val = _ttl ? JSON.stringify({ [APX]: value, ttl: Date.now() + _ttl * 1e3 }) : JSON.stringify(value);
-    if (_encrypt.enable) {
-      val = (_encrypt.encrypter || NOOP)(val, _encrypt.secret) as string;
+    let val =
+      _conf.ttl && _conf.ttl > 0
+        ? JSON.stringify({ [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 })
+        : JSON.stringify(value);
+    if (_conf.enableEncryption) {
+      val = (_conf.encrypter || NOOP)(val, _conf.secret) as string;
     }
     localStorage.setItem(key, val);
   } catch (e) {
@@ -66,7 +67,7 @@ const set = (key: string, value: unknown, ttl?: number, encrypt: Encrypt = {}): 
   }
 };
 
-const get = (key: string, decrypt: Encrypt = {}): null | unknown => {
+const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown => {
   if (!supportsLS) return null;
 
   let str = localStorage.getItem(key);
@@ -75,14 +76,15 @@ const get = (key: string, decrypt: Encrypt = {}): null | unknown => {
     return null;
   }
 
-  const _decrypt = {
-    ...config.encryption,
-    ...decrypt,
-    enable: decrypt.enable === false ? false : decrypt.enable || config.encryption?.enable,
+  const _conf = {
+    ...config,
+    ...localConfig,
+    enable: localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
-  if (_decrypt.enable) {
-    str = (_decrypt.decrypter || NOOP)(str, _decrypt.secret) as string;
+  if (_conf.enable) {
+    str = (_conf.decrypter || NOOP)(str, _conf.secret) as string;
   }
 
   const item = JSON.parse(str);
