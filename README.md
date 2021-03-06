@@ -142,6 +142,8 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 * [`ls.set()`](#lsset)
 * [`ls.get()`](#lsget)
+* [`ls.remove()`](#lsremove)
+* [`ls.clear()`](#lsclear)
 
 ---
 
@@ -192,6 +194,23 @@ ls.config.enableEncryption = true;
 ls.get('key'); // returns decrypted value
 ```
 
+#### <a id="lsremove">ls.`remove()`</a>
+
+Accepts the `key: string` as an argument to remove the data associated with it.
+
+```javascript
+// delete data from the LS
+ls.remove('key'); // returns undefined if successful, false otherwise
+```
+
+#### <a id="lsclear">ls.`clear()`</a>
+
+Clears the entire localstorage linked to the current domain.
+
+```javascript
+// removes all data from the LS
+ls.clear(); // returns undefined if successful, false otherwise
+```
 ---
 
 ### Contribute
