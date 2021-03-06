@@ -48,7 +48,8 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
   const _conf = {
     ...config,
     ...localConfig,
-    enable: localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    enableEncryption:
+      localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
@@ -57,9 +58,11 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
       _conf.ttl && _conf.ttl > 0
         ? JSON.stringify({ [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 })
         : JSON.stringify(value);
+
     if (_conf.enableEncryption) {
       val = (_conf.encrypter || NOOP)(val, _conf.secret) as string;
     }
+
     localStorage.setItem(key, val);
   } catch (e) {
     // Sometimes stringify fails due to circular refs
@@ -79,11 +82,12 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
   const _conf = {
     ...config,
     ...localConfig,
-    enable: localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    enableEncryption:
+      localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
-  if (_conf.enable) {
+  if (_conf.enableEncryption) {
     str = (_conf.decrypter || NOOP)(str, _conf.secret) as string;
   }
 
