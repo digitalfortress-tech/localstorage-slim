@@ -107,8 +107,14 @@ const flush = () => {
   // @todo: implement flush
 };
 
-const clear = () => {
-  // @todo: clear all storage
+const remove = (key: string): undefined | false => {
+  if (!supportsLS) return false;
+  localStorage.removeItem(key);
+};
+
+const clear = (): undefined | false => {
+  if (!supportsLS) return false;
+  localStorage.clear();
 };
 
 export const ls = {
@@ -116,5 +122,6 @@ export const ls = {
   set,
   get,
   // flush,
-  // clear,
+  clear,
+  remove,
 };
