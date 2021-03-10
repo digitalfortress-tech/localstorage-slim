@@ -119,34 +119,28 @@ describe('LS wrapper', () => {
   it('should encrypt the data with default implementation when encryption is enabled', async () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value');
-    expect(localStorage.getItem('some_key')).toBe('mÁ¬·À°m');
+    expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
     expect(ls.get('some_key')).toBe('value');
   });
 
   it('should encrypt only a particular field', async () => {
     ls.config.enableEncryption = false;
     ls.set('some_key', 'value', { enableEncryption: true });
-    expect(localStorage.getItem('some_key')).toBe('mÁ¬·À°m');
-    // throw error if {enableEncryption:false} flag was not provided while getting a key-value pair which was excluded from encryption
-    expect(() => {
-      ls.get('some_key');
-    }).toThrow(SyntaxError);
+    expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
+    // calling get() without enableEncryption set to true
+    expect(ls.get('some_key')).toBe('Á¬·À°');
     expect(ls.get('some_key', { enableEncryption: true })).toBe('value');
   });
 
   it('When global encryption is enabled, using a custom secret must work', async () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value', { secret: 57 });
-    expect(localStorage.getItem('some_key')).toBe('[¯¥®[');
-    // throw error if secret was not provided, in which case it uses the global secret
-    expect(() => {
-      ls.get('some_key');
-    }).toThrow(SyntaxError);
-    // throw error when a different secret is used
-    expect(() => {
-      ls.get('some_key', { secret: 5 });
-    }).toThrow(SyntaxError);
+    expect(localStorage.getItem('some_key')).toBe('"¯¥®"');
     expect(ls.get('some_key', { secret: 57 })).toBe('value');
+    // if secret is not provided, fall back to global secret and return garbage
+    expect(ls.get('some_key')).toBe('dOZcS');
+    // if correct secret is not provided, return garbage
+    expect(ls.get('some_key', { secret: 5 })).toBe('ª ©');
   });
 
   it('local enableEncryption param should take precedence over global enableEncryption config param', async () => {
@@ -154,10 +148,8 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { enableEncryption: false });
     expect(localStorage.getItem('some_key')).toBe('"value"');
 
-    // throw error if {enableEncryption:false} flag was not provided while getting a key-value pair which was excluded from encryption
-    expect(() => {
-      ls.get('some_key');
-    }).toThrow(SyntaxError);
+    // if encryption was not disabled while retrieval as well, return garbage
+    expect(ls.get('some_key')).toBe('+!*');
     expect(ls.get('some_key', { enableEncryption: false })).toBe('value');
   });
 
@@ -168,7 +160,7 @@ describe('LS wrapper', () => {
 
     ls.set('some_key', 'value');
     expect(ls.config.encrypter).toHaveBeenCalled();
-    expect(ls.get('some_key')).toBe('value');
+    expect(ls.get('some_key')).toBe('"value"');
     expect(ls.config.decrypter).toHaveBeenCalled();
   });
 });

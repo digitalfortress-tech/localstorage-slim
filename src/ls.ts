@@ -61,16 +61,21 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
   };
 
   try {
-    let val =
-      _conf.ttl && _conf.ttl > 0
-        ? JSON.stringify({ [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 })
-        : JSON.stringify(value);
+    let val = _conf.ttl && _conf.ttl > 0 ? { [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 } : value;
 
     if (_conf.enableEncryption) {
-      val = (_conf.encrypter || NOOP)(val, _conf.secret) as string;
+      // if ttl exists, only encrypt the value
+      if (_conf.ttl && APX in (val as Record<string, unknown>)) {
+        (val as Record<string, unknown>)[APX] = (_conf.encrypter || NOOP)(
+          (val as Record<string, unknown>)[APX],
+          _conf.secret
+        ) as string;
+      } else {
+        val = (_conf.encrypter || NOOP)(val, _conf.secret) as string;
+      }
     }
 
-    localStorage.setItem(key, val);
+    localStorage.setItem(key, JSON.stringify(val));
   } catch (e) {
     // Sometimes stringify fails due to circular refs
     return false;
@@ -80,7 +85,7 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
 const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown => {
   if (!supportsLS) return null;
 
-  let str = localStorage.getItem(key);
+  const str = localStorage.getItem(key);
 
   if (!str) {
     return null;
@@ -94,14 +99,19 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
+  let item = JSON.parse(str);
+  const hasTTL = isObject(item) && APX in item;
+
   if (_conf.enableEncryption) {
-    str = (_conf.decrypter || NOOP)(str, _conf.secret) as string;
+    if (hasTTL) {
+      item[APX] = (_conf.decrypter || NOOP)(item[APX], _conf.secret) as string;
+    } else {
+      item = (_conf.decrypter || NOOP)(item, _conf.secret) as string;
+    }
   }
 
-  const item = JSON.parse(str);
-
   // if not using ttl, return immediately
-  if (!isObject(item) || (isObject(item) && !(APX in item))) {
+  if (!hasTTL) {
     return item;
   }
 

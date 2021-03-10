@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : i > this.previousTop &&
               (o('#mainNav').removeClass('is-visible'),
               s < i && !o('#mainNav').hasClass('is-fixed') && o('#mainNav').addClass('is-fixed')),
-            (this.previousTop = i);
+          (this.previousTop = i);
         }
       );
     }
@@ -47,6 +47,6 @@ let test;
 
 // eslint-disable-next-line no-undef
 if (dev) {
-  // ls.config.encryption.enable = true;
+  // ls.config.enableEncryption = true;
   test = ['ff', { true: 343 }, 2];
 }
