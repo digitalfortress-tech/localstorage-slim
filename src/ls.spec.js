@@ -13,7 +13,7 @@ describe('LS wrapper', () => {
 
   it('Calling set() with/without ttl should return undefined', () => {
     expect(ls.set('some_key', 'some_value')).toBe(undefined);
-    expect(ls.set('some_key1', 'some_value1', 3)).toBe(undefined);
+    expect(ls.set('some_key1', 'some_value1', { ttl: 3 })).toBe(undefined);
   });
 
   it('LS should set(), get() correct value (with/without ttl)', async () => {
@@ -22,6 +22,8 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key')).toBe('some_value');
     ls.set('some_key1', 'some_value1', { ttl: 3 });
     expect(ls.get('some_key1')).toBe('some_value1');
+    const val = JSON.parse(localStorage.getItem('some_key1'));
+    expect(typeof val.ttl).toBe('number');
 
     // objects
     const inputObj = {
@@ -162,5 +164,12 @@ describe('LS wrapper', () => {
     expect(ls.config.encrypter).toHaveBeenCalled();
     expect(ls.get('some_key')).toBe('"value"');
     expect(ls.config.decrypter).toHaveBeenCalled();
+  });
+
+  it('when encryption is enabled and ttl is provided, ttl should not be encrypted', async () => {
+    ls.config.enableEncryption = true;
+    ls.set('some_key', 'value', { ttl: 3 });
+    const val = JSON.parse(localStorage.getItem('some_key'));
+    expect(typeof val.ttl).toBe('number');
   });
 });
