@@ -99,11 +99,11 @@ const result2 = ls.get('key2');  // null
 LocalStorage-slim allows you to encrypt the data that will be stored in your localStorage.
 
 ```javascript
-// enable encryption
-ls.enableEncryption = true;
+// enable encryption globally
+ls.config.enableEncryption = true;
 
 // optionally use a different secret key
-ls.secret = 57;
+ls.config.secret = 57;
 ```
 Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
 
@@ -126,7 +126,7 @@ As seen, you can easily override the `encrypter` and `decrypter` functions with 
 ls.set(...); // internally calls ls.config.encrypter(...);
 ls.get(...); // internally calls ls.config.decrypter(...);
 
-// you can provide a different secret each time as well.
+// you can encrypt a particular LS item by providing a different secret as well.
 ls.set("key", "value", { secret: 'xyz'});
 ls.get("key", { secret: 'xyz'});
 

@@ -14,6 +14,7 @@ const supportsLS = (): boolean => {
     }
   } catch (e) {
     // some browsers throw an error if you try to access local storage (e.g. brave browser)
+    // and some like Safari do not allow access to LS in incognito mode
     return false;
   }
   return true;
@@ -23,12 +24,10 @@ const supportsLS = (): boolean => {
 const APX = String.fromCharCode(0);
 
 // tiny obsfuscator
-const obfus: Encrypter | Decrypter = (str, key, encrypt = true) => {
-  const secret = key || config.secret;
-  return encrypt
-    ? [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) + (secret as number))).join('')
-    : [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (secret as number))).join('');
-};
+const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
+  encrypt
+    ? [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number))).join('')
+    : [...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join('');
 
 const decrypter: Decrypter = (str, key) => {
   return obfus(str, key, false);
