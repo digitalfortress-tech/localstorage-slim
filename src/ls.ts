@@ -17,6 +17,13 @@ const supportsLS = (): boolean => {
     // and some like Safari do not allow access to LS in incognito mode
     return false;
   }
+
+  // flush if needed
+  if (config.flushOnInit) {
+    flush();
+    config.flushOnInit = false;
+  }
+
   return true;
 };
 
@@ -39,6 +46,7 @@ const config: LocalStorageConfig = {
   encrypter: obfus,
   decrypter: decrypter,
   secret: 75,
+  flushOnInit: true,
 };
 
 const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}): void | boolean => {
@@ -105,9 +113,14 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
   return item[APX];
 };
 
-const flush = () => {
+const flush = (force = false) => {
   if (!supportsLS) return false;
-  // @todo: implement flush
+  Object.keys(localStorage).forEach((key) => {
+    try {
+      get(key);
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
+  });
 };
 
 const remove = (key: string): undefined | false => {
@@ -124,7 +137,7 @@ export const ls = {
   config,
   set,
   get,
-  // flush,
+  flush,
   clear,
   remove,
 };
