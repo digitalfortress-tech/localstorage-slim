@@ -5,6 +5,7 @@ describe('LS wrapper', () => {
     global.localStorage.clear();
     ls.config.ttl = null;
     ls.config.enableEncryption = false;
+    ls.config.secret = 75;
   });
 
   it('Calling get() with non-existent key should return null', () => {
@@ -157,6 +158,8 @@ describe('LS wrapper', () => {
 
   it('should encrypt the data with custom implementation', () => {
     ls.config.enableEncryption = true;
+    const encrypt = ls.config.encrypter;
+    const decrypt = ls.config.decrypter;
     ls.config.encrypter = jest.fn(() => 'mÁ¬·À°m');
     ls.config.decrypter = jest.fn(() => '"value"');
 
@@ -164,6 +167,10 @@ describe('LS wrapper', () => {
     expect(ls.config.encrypter).toHaveBeenCalled();
     expect(ls.get('some_key')).toBe('"value"');
     expect(ls.config.decrypter).toHaveBeenCalled();
+
+    // restore functions
+    ls.config.encrypter = encrypt;
+    ls.config.decrypter = decrypt;
   });
 
   it('when encryption is enabled and ttl is provided, ttl should not be encrypted', () => {
@@ -175,20 +182,27 @@ describe('LS wrapper', () => {
 
   it('should flush() correctly', async () => {
     ls.set('key1', 'value1', { ttl: 1 });
-    ls.set('key2', 'value2', { ttl: 5 });
-    ls.flush();
+    ls.set('key2', 'value2', { ttl: 1, enableEncryption: true });
+    ls.set('key3', 'value3', { ttl: 5 });
+    ls.set('key4', 'value4', { ttl: 5, enableEncryption: true });
+
     // should not flush before ttl expires
+    ls.flush();
     expect(ls.get('key1')).toBe('value1');
-    expect(ls.get('key2')).toBe('value2');
+    expect(ls.get('key2')).toBe('Á¬·À°}');
+    expect(ls.get('key3')).toBe('value3');
+    expect(ls.get('key4')).toBe('Á¬·À°');
 
     // expired items should be flushed
     await new Promise((res) => setTimeout(res, 1100));
     ls.flush();
     expect(localStorage.getItem('key1')).toBe(null);
+    expect(localStorage.getItem('key2')).toBe(null);
 
     // force flush whether items are expired or not
     ls.flush(true);
-    expect(ls.get('key2')).toBe(null);
+    expect(ls.get('key3')).toBe(null);
+    expect(ls.get('key4')).toBe(null);
   });
 
   it('config option "flushOnInit" should flush only expired ttl', async () => {
