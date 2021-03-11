@@ -7,6 +7,9 @@
 import { isObject, NOOP } from './helpers';
 import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
 
+// Flags
+let flushOnInit = true;
+
 const supportsLS = (): boolean => {
   try {
     if (!localStorage) {
@@ -18,9 +21,9 @@ const supportsLS = (): boolean => {
     return false;
   }
 
-  // flush if needed
-  if (config.flushOnInit) {
-    config.flushOnInit = false;
+  // flush once on init
+  if (flushOnInit) {
+    flushOnInit = false;
     flush();
   }
 
@@ -46,11 +49,10 @@ const config: LocalStorageConfig = {
   encrypter: obfus,
   decrypter: decrypter,
   secret: 75,
-  flushOnInit: true,
 };
 
 const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}): void | boolean => {
-  if (!supportsLS) return false;
+  if (!supportsLS()) return false;
 
   const _conf = {
     ...config,
@@ -83,7 +85,7 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
 };
 
 const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown => {
-  if (!supportsLS) return null;
+  if (!supportsLS()) return null;
 
   const str = localStorage.getItem(key);
 
@@ -124,7 +126,7 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
 };
 
 const flush = (force = false): false | void => {
-  if (!supportsLS) return false;
+  if (!supportsLS()) return false;
   Object.keys(localStorage).forEach((key) => {
     const str = localStorage.getItem(key);
     if (!str) return; // continue iteration
@@ -137,12 +139,12 @@ const flush = (force = false): false | void => {
 };
 
 const remove = (key: string): undefined | false => {
-  if (!supportsLS) return false;
+  if (!supportsLS()) return false;
   localStorage.removeItem(key);
 };
 
 const clear = (): undefined | false => {
-  if (!supportsLS) return false;
+  if (!supportsLS()) return false;
   localStorage.clear();
 };
 

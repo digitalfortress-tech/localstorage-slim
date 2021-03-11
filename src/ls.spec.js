@@ -8,6 +8,17 @@ describe('LS wrapper', () => {
     ls.config.secret = 75;
   });
 
+  it('expired items should be flushed on Init', async () => {
+    localStorage.setItem('key1', JSON.stringify({ '\u0000': 'value1', ttl: 1615476122549 })); // ttl is expired
+    localStorage.setItem('key2', JSON.stringify({ '\u0000': 'value2', ttl: 1615476122549 })); // ttl is expired
+    expect(localStorage.getItem('key1')).toBe('{"\\u0000":"value1","ttl":1615476122549}');
+    expect(localStorage.getItem('key2')).toBe('{"\\u0000":"value2","ttl":1615476122549}');
+
+    ls.set('key', 'value'); // call to any API method on init, calls flush() internally
+    expect(localStorage.getItem('key1')).toBe(null);
+    expect(localStorage.getItem('key2')).toBe(null);
+  });
+
   it('Calling get() with non-existent key should return null', () => {
     expect(ls.get('some_key')).toBe(null);
   });
@@ -203,18 +214,5 @@ describe('LS wrapper', () => {
     ls.flush(true);
     expect(ls.get('key3')).toBe(null);
     expect(ls.get('key4')).toBe(null);
-  });
-
-  it('config option "flushOnInit" should flush only expired ttl', async () => {
-    ls.set('key1', 'value', { ttl: 1 });
-    expect(ls.get('key1')).toBe('value');
-    ls.set('key2', 'test2', { ttl: 2 });
-    ls.set('key3', 'test3');
-
-    // after timeout value should be flushed
-    await new Promise((res) => setTimeout(res, 1100));
-    expect(ls.get('key1')).toBe(null);
-    expect(ls.get('key2')).toBe('test2');
-    expect(ls.get('key3')).toBe('test3');
   });
 });

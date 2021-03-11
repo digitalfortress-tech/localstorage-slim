@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : i > this.previousTop &&
               (o('#mainNav').removeClass('is-visible'),
               s < i && !o('#mainNav').hasClass('is-fixed') && o('#mainNav').addClass('is-fixed')),
-          (this.previousTop = i);
+            (this.previousTop = i);
         }
       );
     }
