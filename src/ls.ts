@@ -20,8 +20,8 @@ const supportsLS = (): boolean => {
 
   // flush if needed
   if (config.flushOnInit) {
-    flush();
     config.flushOnInit = false;
+    flush();
   }
 
   return true;
@@ -123,13 +123,16 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
   return item[APX];
 };
 
-const flush = (force = false) => {
+const flush = (force = false): false | void => {
   if (!supportsLS) return false;
   Object.keys(localStorage).forEach((key) => {
-    try {
-      get(key);
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
+    const str = localStorage.getItem(key);
+    if (!str) return; // continue iteration
+    const item = JSON.parse(str);
+    // flush only if ttl was set and is/is not expired
+    if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
+      localStorage.removeItem(key);
+    }
   });
 };
 

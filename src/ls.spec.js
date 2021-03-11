@@ -118,14 +118,14 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key')).toBe('some_value');
   });
 
-  it('should encrypt the data with default implementation when encryption is enabled', async () => {
+  it('should encrypt the data with default implementation when encryption is enabled', () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value');
     expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
     expect(ls.get('some_key')).toBe('value');
   });
 
-  it('should encrypt only a particular field', async () => {
+  it('should encrypt only a particular field', () => {
     ls.config.enableEncryption = false;
     ls.set('some_key', 'value', { enableEncryption: true });
     expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
@@ -134,7 +134,7 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key', { enableEncryption: true })).toBe('value');
   });
 
-  it('When global encryption is enabled, using a custom secret must work', async () => {
+  it('When global encryption is enabled, using a custom secret must work', () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value', { secret: 57 });
     expect(localStorage.getItem('some_key')).toBe('"¯¥®"');
@@ -145,7 +145,7 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key', { secret: 5 })).toBe('ª ©');
   });
 
-  it('local enableEncryption param should take precedence over global enableEncryption config param', async () => {
+  it('local enableEncryption param should take precedence over global enableEncryption config param', () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value', { enableEncryption: false });
     expect(localStorage.getItem('some_key')).toBe('"value"');
@@ -155,7 +155,7 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key', { enableEncryption: false })).toBe('value');
   });
 
-  it('should encrypt the data with custom implementation', async () => {
+  it('should encrypt the data with custom implementation', () => {
     ls.config.enableEncryption = true;
     ls.config.encrypter = jest.fn(() => 'mÁ¬·À°m');
     ls.config.decrypter = jest.fn(() => '"value"');
@@ -166,10 +166,41 @@ describe('LS wrapper', () => {
     expect(ls.config.decrypter).toHaveBeenCalled();
   });
 
-  it('when encryption is enabled and ttl is provided, ttl should not be encrypted', async () => {
+  it('when encryption is enabled and ttl is provided, ttl should not be encrypted', () => {
     ls.config.enableEncryption = true;
     ls.set('some_key', 'value', { ttl: 3 });
     const val = JSON.parse(localStorage.getItem('some_key'));
     expect(typeof val.ttl).toBe('number');
+  });
+
+  it('should flush() correctly', async () => {
+    ls.set('key1', 'value1', { ttl: 1 });
+    ls.set('key2', 'value2', { ttl: 5 });
+    ls.flush();
+    // should not flush before ttl expires
+    expect(ls.get('key1')).toBe('value1');
+    expect(ls.get('key2')).toBe('value2');
+
+    // expired items should be flushed
+    await new Promise((res) => setTimeout(res, 1100));
+    ls.flush();
+    expect(localStorage.getItem('key1')).toBe(null);
+
+    // force flush whether items are expired or not
+    ls.flush(true);
+    expect(ls.get('key2')).toBe(null);
+  });
+
+  it('config option "flushOnInit" should flush only expired ttl', async () => {
+    ls.set('key1', 'value', { ttl: 1 });
+    expect(ls.get('key1')).toBe('value');
+    ls.set('key2', 'test2', { ttl: 2 });
+    ls.set('key3', 'test3');
+
+    // after timeout value should be flushed
+    await new Promise((res) => setTimeout(res, 1100));
+    expect(ls.get('key1')).toBe(null);
+    expect(ls.get('key2')).toBe('test2');
+    expect(ls.get('key3')).toBe('test3');
   });
 });
