@@ -144,6 +144,7 @@ The Api is very similar to that of the native `LocalStorage API`.
 * [`ls.get()`](#lsget)
 * [`ls.remove()`](#lsremove)
 * [`ls.clear()`](#lsclear)
+* [`ls.flush()`](#lsflush)
 
 ---
 
@@ -210,6 +211,17 @@ Clears the entire localstorage linked to the current domain.
 ```javascript
 // removes all data from the LS
 ls.clear(); // returns undefined if successful, false otherwise
+```
+
+#### <a id="lsflush">ls.`flush()`</a>
+
+Flushes all expired items in the localStorage. This function is called once automatically on initialization. It can accept an optional argument `force: boolean` which is used to force-flush all items including the ones that haven't expired yet. Note that doing `flush(true);` will not remove items that had no TTL set on them.
+
+```javascript
+// removes all expired data (i.e. ttl has expired)
+ls.flush();
+// removes all data that have a ttl (i.e. even if the ttl has not expired)
+ls.flush(true);
 ```
 ---
 
