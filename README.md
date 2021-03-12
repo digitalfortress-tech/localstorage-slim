@@ -88,7 +88,7 @@ const result2 = ls.get('key2');  // null
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 |`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localstorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
-|`enableEncryption?: boolean` |Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API  | false|
+|`encrypt?: boolean` |Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API  | false|
 |`encrypter?: (input: string, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
 |`decrypter?: (encryptedString: string, secret: string): string`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
 |`secret: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  |75|
@@ -100,7 +100,7 @@ LocalStorage-slim allows you to encrypt the data that will be stored in your loc
 
 ```javascript
 // enable encryption globally
-ls.config.enableEncryption = true;
+ls.config.encrypt = true;
 
 // optionally use a different secret key
 ls.config.secret = 57;
@@ -110,7 +110,7 @@ Enabling encryption ensures that the data stored in your localStorage will be un
 To use a library like CryptoJS, update the following config options -
 ```javascript
 // enable encryption
-ls.config.enableEncryption = true;
+ls.config.encrypt = true;
 // override encrypter function
 ls.config.encrypter = (text: string, secret: string): string => 'encrypted string';
 // override decrypter function
@@ -168,7 +168,7 @@ ls.set('key', 'value'); // value expires after 3s
 ls.set('key', 'value', { ttl: 5 }); // value expires after 5s (overrides global ttl)
 
 // with encryption (to encrypt particular fields)
-ls.set('key', 'value', { enableEncryption: true });
+ls.set('key', 'value', { encrypt: true });
 ```
 
 #### <a id="lsget">ls.`get()`</a>
@@ -188,10 +188,10 @@ console.log('Value =>', value); // value retrieved from LS
 ls.get('key'); // returns the value if ttl has not expired, else returns null
 
 // when a particular field is encrypted, and it needs decryption
-ls.get('key', { enableEncryption: true });
+ls.get('key', { encrypt: true });
 
 // get decrypted value when global encryption is enabled
-ls.config.enableEncryption = true;
+ls.config.encrypt = true;
 ls.get('key'); // returns decrypted value
 ```
 

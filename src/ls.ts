@@ -45,7 +45,7 @@ const decrypter: Decrypter = (str, key) => {
 
 const config: LocalStorageConfig = {
   ttl: null,
-  enableEncryption: false,
+  encrypt: false,
   encrypter: obfus,
   decrypter: decrypter,
   secret: 75,
@@ -57,15 +57,15 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
   const _conf = {
     ...config,
     ...localConfig,
-    enableEncryption:
-      localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    encrypt:
+      localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
   try {
     let val = _conf.ttl && _conf.ttl > 0 ? { [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 } : value;
 
-    if (_conf.enableEncryption) {
+    if (_conf.encrypt) {
       // if ttl exists, only encrypt the value
       if (_conf.ttl && APX in (val as Record<string, unknown>)) {
         (val as Record<string, unknown>)[APX] = (_conf.encrypter || NOOP)(
@@ -96,15 +96,15 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
   const _conf = {
     ...config,
     ...localConfig,
-    enableEncryption:
-      localConfig.enableEncryption === false ? false : localConfig.enableEncryption || config.enableEncryption,
+    encrypt:
+      localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
   let item = JSON.parse(str);
   const hasTTL = isObject(item) && APX in item;
 
-  if (_conf.enableEncryption) {
+  if (_conf.encrypt) {
     if (hasTTL) {
       item[APX] = (_conf.decrypter || NOOP)(item[APX], _conf.secret) as string;
     } else {
