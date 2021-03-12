@@ -142,19 +142,19 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 * [`ls.set()`](#lsset)
 * [`ls.get()`](#lsget)
+* [`ls.flush()`](#lsflush)
 * [`ls.remove()`](#lsremove)
 * [`ls.clear()`](#lsclear)
-* [`ls.flush()`](#lsflush)
 
 ---
 
-#### <a id="lsset">ls.`set()`</a>
+#### <a id="lsset">`ls.set(key, value, config = {})`</a>
 
 Sets an item in the LocalStorage. It can accept 4 arguments
 
 1. `key: string` **[Required]** - The key with which the value should be associated
 2. `value: string|Date|Number|Object|Boolean|Null` **[Required]** - The value to be stored
-3. `localConfig: Config` **[Optional]** - This parameter takes the same parameters as the [global config](#config) object
+3. `config: Config` **[Optional]** - This argument accepts the same properties as the [global config](#config) object. Defaults to an empty object
 
 Returns `false` if there was an error, else returns `undefined`.
 
@@ -163,7 +163,7 @@ const res = ls.set('key', 'value');
 console.log('Value =>', res); // returns undefined if successful or false if there was a problem
 
 // with ttl
-ls.config.ttl = 3; // global ttl set to 3 seconds
+ls.config.ttl = 3;      // global ttl set to 3 seconds
 ls.set('key', 'value'); // value expires after 3s
 ls.set('key', 'value', { ttl: 5 }); // value expires after 5s (overrides global ttl)
 
@@ -171,12 +171,12 @@ ls.set('key', 'value', { ttl: 5 }); // value expires after 5s (overrides global 
 ls.set('key', 'value', { encrypt: true });
 ```
 
-#### <a id="lsget">ls.`get()`</a>
+#### <a id="lsget">`ls.get(key, config = {})`</a>
 
 Retrieves the Data associated with the key stored in the LocalStorage. It accepts 2 arguments -
 
 1. `key: string` **[Required]** - The key with which the value is associated
-2. `localConfig: Config` **[Optional]** - This parameter takes the same parameters as the [global config](#config) object
+2. `config: Config` **[Optional]** - This argument accepts the same properties as the [global config](#config) object. Defaults to an empty object
 
 If the passed key does not exist, it returns `null`.
 
@@ -195,7 +195,18 @@ ls.config.encrypt = true;
 ls.get('key'); // returns decrypted value
 ```
 
-#### <a id="lsremove">ls.`remove()`</a>
+#### <a id="lsflush">`ls.flush(force = false)`</a>
+
+Flushes all expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. It is used to force-flush all items including the ones that haven't expired yet. Note that doing `flush(true);` will not remove items that had no TTL set on them. In short, `flush()` is useful only while using TTL, otherwise use `remove()` or `clear()`.
+
+```javascript
+// removes all expired data (i.e. ttl has expired)
+ls.flush();
+// removes all data that have a ttl (i.e. even if the ttl has not expired)
+ls.flush(true);
+```
+
+#### <a id="lsremove">`ls.remove(key)`</a>
 
 Accepts the `key: string` as an argument to remove the data associated with it.
 
@@ -204,7 +215,7 @@ Accepts the `key: string` as an argument to remove the data associated with it.
 ls.remove('key'); // returns undefined if successful, false otherwise
 ```
 
-#### <a id="lsclear">ls.`clear()`</a>
+#### <a id="lsclear">`ls.clear()`</a>
 
 Clears the entire localstorage linked to the current domain.
 
@@ -213,16 +224,6 @@ Clears the entire localstorage linked to the current domain.
 ls.clear(); // returns undefined if successful, false otherwise
 ```
 
-#### <a id="lsflush">ls.`flush()`</a>
-
-Flushes all expired items in the localStorage. This function is called once automatically on initialization. It can accept an optional argument `force: boolean` which is used to force-flush all items including the ones that haven't expired yet. Note that doing `flush(true);` will not remove items that had no TTL set on them.
-
-```javascript
-// removes all expired data (i.e. ttl has expired)
-ls.flush();
-// removes all data that have a ttl (i.e. even if the ttl has not expired)
-ls.flush(true);
-```
 ---
 
 ### Contribute

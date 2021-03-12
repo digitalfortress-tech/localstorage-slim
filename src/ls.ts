@@ -57,8 +57,7 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
   const _conf = {
     ...config,
     ...localConfig,
-    encrypt:
-      localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
+    encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
@@ -96,8 +95,7 @@ const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown 
   const _conf = {
     ...config,
     ...localConfig,
-    encrypt:
-      localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
+    encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 

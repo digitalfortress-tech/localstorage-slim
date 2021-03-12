@@ -47,6 +47,6 @@ let test;
 
 // eslint-disable-next-line no-undef
 if (dev) {
-  // ls.config.enableEncryption = true;
+  // ls.config.encrypt = true;
   test = ['ff', { true: 343 }, 2];
 }
