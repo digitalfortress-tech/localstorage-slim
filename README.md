@@ -150,7 +150,7 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 #### <a id="lsset">`ls.set(key, value, config = {})`</a>
 
-Sets an item in the LocalStorage. It can accept 4 arguments
+Sets an item in the LocalStorage. It can accept 3 arguments
 
 1. `key: string` **[Required]** - The key with which the value should be associated
 2. `value: string|Date|Number|Object|Boolean|Null` **[Required]** - The value to be stored
