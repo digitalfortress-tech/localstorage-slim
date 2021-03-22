@@ -3,7 +3,7 @@
   "title": "localstorage-slim",
   "description": "An ultra slim localstorage wrapper with optional support for ttl and encryption",
   "version": "1.8.0",
-  "homepage": "https://github.com/niketpathak/localstorage-slim",
+  "homepage": "https://github.com/digitalfortress-tech/localstorage-slim",
   "license": "MIT",
   "scripts": {
     "dev": "npm run server -- --mode development --progress",
@@ -29,15 +29,15 @@
   "main": "dist/localstorage-slim.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/niketpathak/localstorage-slim.git"
+    "url": "https://github.com/digitalfortress-tech/localstorage-slim"
   },
   "bugs": {
-    "url": "https://github.com/niketpathak/localstorage-slim/issues"
+    "url": "https://github.com/digitalfortress-tech/localstorage-slim/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/niketpathak/localstorage-slim/blob/master/LICENSE"
+      "url": "https://github.com/digitalfortress-tech/localstorage-slim/blob/master/LICENSE"
     }
   ],
   "files": [
