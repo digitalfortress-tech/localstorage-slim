@@ -197,12 +197,12 @@ ls.get('key'); // returns decrypted value
 
 #### <a id="lsflush">`ls.flush(force = false)`</a>
 
-Flushes all expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. It is used to force-flush all items including the ones that haven't expired yet. Note that doing `flush(true);` will not remove items that had no TTL set on them. In short, `flush()` is useful only while using TTL, otherwise use `remove()` or `clear()`.
+Flushes expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. It set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `flush(true);` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
 
 ```javascript
 // removes all expired data (i.e. ttl has expired)
 ls.flush();
-// removes all data that have a ttl (i.e. even if the ttl has not expired)
+// removes all data that has a ttl (i.e. even if the ttl has not expired yet)
 ls.flush(true);
 ```
 
