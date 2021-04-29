@@ -51,7 +51,7 @@ const config: LocalStorageConfig = {
   secret: 75,
 };
 
-const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}): void | boolean => {
+const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
   if (!supportsLS()) return false;
 
   const _conf = {
@@ -72,7 +72,7 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
           _conf.secret
         ) as string;
       } else {
-        val = (_conf.encrypter || NOOP)(val, _conf.secret) as string;
+        val = (_conf.encrypter || NOOP)(val, _conf.secret) as T;
       }
     }
 
@@ -83,7 +83,7 @@ const set = (key: string, value: unknown, localConfig: LocalStorageConfig = {}):
   }
 };
 
-const get = (key: string, localConfig: LocalStorageConfig = {}): null | unknown => {
+const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T | null => {
   if (!supportsLS()) return null;
 
   const str = localStorage.getItem(key);
