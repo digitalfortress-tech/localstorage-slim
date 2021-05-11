@@ -34,7 +34,7 @@ Then include the library in your App/Page.
 **As a module,** 
 ```javascript
 // using ES6 modules
-import { ls } from 'localstorage-slim';
+import ls from 'localstorage-slim';
 
 // using CommonJS modules
 var ls = require('localstorage-slim');
