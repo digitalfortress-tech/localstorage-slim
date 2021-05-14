@@ -131,7 +131,7 @@ const flush = (force = false): false | void => {
     if (!str) return; // continue iteration
     try {
       item = JSON.parse(str);
-    } catch (_err) {
+    } catch (e) {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
       return;
     }
