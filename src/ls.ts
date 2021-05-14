@@ -126,9 +126,15 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
 const flush = (force = false): false | void => {
   if (!supportsLS()) return false;
   Object.keys(localStorage).forEach((key) => {
+    let item;
     const str = localStorage.getItem(key);
     if (!str) return; // continue iteration
-    const item = JSON.parse(str);
+    try {
+      item = JSON.parse(str);
+    } catch (_err) {
+      // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
+      return;
+    }
     // flush only if ttl was set and is/is not expired
     if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
       localStorage.removeItem(key);
