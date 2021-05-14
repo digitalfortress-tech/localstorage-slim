@@ -2,7 +2,7 @@
   "name": "localstorage-slim",
   "title": "localstorage-slim",
   "description": "An ultra slim localstorage wrapper with optional support for ttl and encryption",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "homepage": "https://github.com/digitalfortress-tech/localstorage-slim",
   "license": "MIT",
   "scripts": {
