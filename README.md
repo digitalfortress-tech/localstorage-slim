@@ -1,10 +1,10 @@
-# localstorage-slim.js 
+# localstorage-slim.js
 
 [![npm version](https://img.shields.io/npm/v/localstorage-slim.svg)](https://www.npmjs.com/package/localstorage-slim)
-[![Build Status](https://travis-ci.org/niketpathak/localstorage-slim.svg?branch=master)](https://travis-ci.org/niketpathak/localstorage-slim) 
+[![Build Status](https://travis-ci.org/niketpathak/localstorage-slim.svg?branch=master)](https://travis-ci.org/niketpathak/localstorage-slim)
 [![code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-![Downloads](https://img.shields.io/npm/dt/localstorage-slim) 
-![maintained](https://img.shields.io/badge/maintained-yes-blueviolet) 
+![Downloads](https://img.shields.io/npm/dt/localstorage-slim)
+![maintained](https://img.shields.io/badge/maintained-yes-blueviolet)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -31,7 +31,7 @@ $ yarn add localstorage-slim
 ```
 Then include the library in your App/Page.
 
-**As a module,** 
+**As a module,**
 ```javascript
 // using ES6 modules
 import ls from 'localstorage-slim';
@@ -48,7 +48,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@1.8.0/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@1.9.2/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
@@ -105,7 +105,7 @@ ls.config.encrypt = true;
 // optionally use a different secret key
 ls.config.secret = 57;
 ```
-Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs. 
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs.
 
 To use a library like CryptoJS, update the following config options -
 ```javascript
