@@ -9,17 +9,21 @@ import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
 
 // Flags
 let flushOnInit = true;
+let hasLS: boolean;
 
 const supportsLS = (): boolean => {
+  if (hasLS !== undefined) return hasLS;
+
   try {
     if (!localStorage) {
-      return false;
+      hasLS = false;
     }
   } catch (e) {
     // some browsers throw an error if you try to access local storage (e.g. brave browser)
     // and some like Safari do not allow access to LS in incognito mode
-    return false;
+    hasLS = false;
   }
+  hasLS = true;
 
   // flush once on init
   if (flushOnInit) {
@@ -27,7 +31,7 @@ const supportsLS = (): boolean => {
     flush();
   }
 
-  return true;
+  return hasLS;
 };
 
 // Apex
@@ -126,9 +130,9 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
 const flush = (force = false): false | void => {
   if (!supportsLS()) return false;
   Object.keys(localStorage).forEach((key) => {
-    let item;
     const str = localStorage.getItem(key);
     if (!str) return; // continue iteration
+    let item;
     try {
       item = JSON.parse(str);
     } catch (e) {
