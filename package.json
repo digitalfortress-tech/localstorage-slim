@@ -27,6 +27,7 @@
   },
   "browser": "dist/localstorage-slim.min.js",
   "main": "dist/localstorage-slim.js",
+  "types": "./dist/src/ls.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/digitalfortress-tech/localstorage-slim"
