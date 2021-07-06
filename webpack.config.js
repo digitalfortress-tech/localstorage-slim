@@ -7,7 +7,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'localstorage-slim.js',
     library: 'ls',
-    libraryExport: 'ls', // to export only the default fn
+    libraryExport: 'default', // to export only the default fn
     libraryTarget: 'umd',
     globalObject: 'this',
   },
@@ -24,7 +24,7 @@ module.exports = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: 'eslint-loader',
-      }
+      },
     ],
   },
   resolve: {
