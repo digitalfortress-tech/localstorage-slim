@@ -48,7 +48,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@1.9.2/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@1.9.4/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
