@@ -156,7 +156,7 @@ const clear = (): undefined | false => {
   localStorage.clear();
 };
 
-export const ls = {
+export default {
   config,
   set,
   get,
