@@ -10,7 +10,6 @@
     "noFallthroughCasesInSwitch": true,
     "strict": true,
     "declaration": true,
-    "allowJs": true,
     "sourceMap": true
   }
 }

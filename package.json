@@ -12,7 +12,8 @@
     "server": "webpack",
     "tag": "npm version minor --no-git-tag-version && npm run prod && PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git commit -am \"$PACKAGE_VERSION release\" && git tag v$PACKAGE_VERSION",
     "test": "jest --verbose",
-    "lint": "eslint ./src --ext .ts --fix"
+    "lint": "eslint ./src --ext .ts --fix",
+    "copy-typescript-definitions": "copyfiles -u 1 \"src/**/*.d.ts\" dist"
   },
   "jest": {
     "transform": {
@@ -71,6 +72,7 @@
     "@typescript-eslint/parser": "^4.4.1",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.1.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.13.0",
     "eslint-loader": "^4.0.2",
