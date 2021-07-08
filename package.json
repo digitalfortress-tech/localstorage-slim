@@ -2,7 +2,7 @@
   "name": "localstorage-slim",
   "title": "localstorage-slim",
   "description": "An ultra slim localstorage wrapper with optional support for ttl and encryption",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "homepage": "https://github.com/digitalfortress-tech/localstorage-slim",
   "license": "MIT",
   "scripts": {
@@ -28,7 +28,7 @@
   },
   "browser": "dist/localstorage-slim.min.js",
   "main": "dist/localstorage-slim.js",
-  "types": "./dist/src/ls.d.ts",
+  "types": "./dist/ls.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/digitalfortress-tech/localstorage-slim"
