@@ -135,28 +135,28 @@ describe('LS wrapper', () => {
   it('should encrypt the data with default implementation when encryption is enabled', () => {
     ls.config.encrypt = true;
     ls.set('some_key', 'value');
-    expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
+    expect(localStorage.getItem('some_key')).toBe('"mÁ¬·À°m"');
     expect(ls.get('some_key')).toBe('value');
   });
 
   it('should encrypt only a particular field', () => {
     ls.config.encrypt = false;
     ls.set('some_key', 'value', { encrypt: true });
-    expect(localStorage.getItem('some_key')).toBe('"Á¬·À°"');
+    expect(localStorage.getItem('some_key')).toBe('"mÁ¬·À°m"');
     // calling get() without encrypt set to true
-    expect(ls.get('some_key')).toBe('Á¬·À°');
+    expect(ls.get('some_key')).toBe('mÁ¬·À°m');
     expect(ls.get('some_key', { encrypt: true })).toBe('value');
   });
 
   it('When global encryption is enabled, using a custom secret must work', () => {
     ls.config.encrypt = true;
-    ls.set('some_key', 'value', { secret: 57 });
-    expect(localStorage.getItem('some_key')).toBe('"¯¥®"');
-    expect(ls.get('some_key', { secret: 57 })).toBe('value');
+    ls.set('some_key', 'value', { secret: 83 });
+    expect(localStorage.getItem('some_key')).toBe('"uÉ´¿È¸u"');
+    expect(ls.get('some_key', { secret: 83 })).toBe('value');
     // if secret is not provided, fall back to global secret and return garbage
-    expect(ls.get('some_key')).toBe('dOZcS');
-    // if correct secret is not provided, return garbage
-    expect(ls.get('some_key', { secret: 5 })).toBe('ª ©');
+    expect(ls.get('some_key')).toBe('uÉ´¿È¸u');
+    // if correct secret is not provided, return encrypted value
+    expect(ls.get('some_key', { secret: 5 })).toBe('uÉ´¿È¸u');
   });
 
   it('local encrypt param should take precedence over global encrypt config param', () => {
@@ -164,8 +164,8 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { encrypt: false });
     expect(localStorage.getItem('some_key')).toBe('"value"');
 
-    // if encryption was not disabled while retrieval as well, return garbage
-    expect(ls.get('some_key')).toBe('+!*');
+    // if encryption was disabled, return raw value
+    expect(ls.get('some_key')).toBe('value');
     expect(ls.get('some_key', { encrypt: false })).toBe('value');
   });
 
@@ -202,9 +202,9 @@ describe('LS wrapper', () => {
     // should not flush before ttl expires
     ls.flush();
     expect(ls.get('key1')).toBe('value1');
-    expect(ls.get('key2')).toBe('Á¬·À°}');
+    expect(ls.get('key2')).toBe('mÁ¬·À°}m');
     expect(ls.get('key3')).toBe('value3');
-    expect(ls.get('key4')).toBe('Á¬·À°');
+    expect(ls.get('key4')).toBe('mÁ¬·À°m');
 
     // expired items should be flushed
     await new Promise((res) => setTimeout(res, 1100));
