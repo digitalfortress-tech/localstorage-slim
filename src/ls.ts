@@ -117,7 +117,7 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
       }
     } catch (e) {
       // Either the secret is incorrect or there was a parsing error
-      // continue and return the encrypted/unparsed value
+      // do nothing [returns the encrypted/unparsed value]
     }
   }
 

@@ -2,6 +2,20 @@
 // @ts-nocheck
 import ls from './ls';
 
+const testObj = {
+  type: 'DC heroes',
+  superman: {
+    name: 'Clark kent',
+    hero: true,
+    strength: 100,
+    weak: false,
+    weird: null,
+    abilities: ['heat vision', 'speed'],
+  },
+};
+
+const testArr = ['Apple', 13, true, null, false, 14.5, { ironman: 'Tony Stark' }];
+
 describe('LS wrapper', () => {
   afterEach(() => {
     global.localStorage.clear();
@@ -13,12 +27,14 @@ describe('LS wrapper', () => {
   it('expired items should be flushed on Init', async () => {
     localStorage.setItem('key1', JSON.stringify({ '\u0000': 'value1', ttl: 1615476122549 })); // ttl is expired
     localStorage.setItem('key2', JSON.stringify({ '\u0000': 'value2', ttl: 1615476122549 })); // ttl is expired
+    localStorage.setItem('key3', 'value3'); // ttl is expired
     expect(localStorage.getItem('key1')).toBe('{"\\u0000":"value1","ttl":1615476122549}');
     expect(localStorage.getItem('key2')).toBe('{"\\u0000":"value2","ttl":1615476122549}');
 
     ls.set('key', 'value'); // call to any API method on init, calls flush() internally
     expect(localStorage.getItem('key1')).toBe(null);
     expect(localStorage.getItem('key2')).toBe(null);
+    expect(localStorage.getItem('key3')).toBe('value3');
   });
 
   it('Calling get() with non-existent key should return null', () => {
@@ -83,11 +99,11 @@ describe('LS wrapper', () => {
 
     ls.set('some_object', exp);
     expect(ls.get('some_object')).toStrictEqual(exp);
-    ls.set('some_object', exp, { ttl: 1 });
+    ls.set('some_object', exp, { ttl: 0.5 });
     expect(ls.get('some_object')).toStrictEqual(exp);
 
-    // should expire after 1s and not after 3s
-    await new Promise((res) => setTimeout(res, 1100));
+    // should expire after 0.5s and not after 3s
+    await new Promise((res) => setTimeout(res, 550));
     expect(ls.get('some_object')).toBe(null);
   });
 
@@ -97,46 +113,79 @@ describe('LS wrapper', () => {
 
     await new Promise((res) => setTimeout(res, 1100));
     expect(ls.get('some_key')).toBe(null);
+
+    ls.set('some_key', testObj, { ttl: 0.5 });
+    expect(ls.get('some_key')).toStrictEqual(testObj);
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe(null);
   });
 
   it('Calling get() should return null after global ttl expires', async () => {
-    ls.config.ttl = 1;
+    ls.config.ttl = 0.5;
     ls.set('some_key', 'some_value');
     expect(ls.get('some_key')).toBe('some_value');
 
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe(null);
+
+    ls.set('some_key', testObj);
+    expect(ls.get('some_key')).toStrictEqual(testObj);
+    await new Promise((res) => setTimeout(res, 550));
     expect(ls.get('some_key')).toBe(null);
   });
 
   it('Local ttl should take precedence over global ttl (conf)', async () => {
-    ls.config.ttl = 1;
-    ls.set('some_key', 'some_value', { ttl: 2 });
+    ls.config.ttl = 0.5;
+    ls.set('some_key', 'some_value', { ttl: 1 });
     expect(ls.get('some_key')).toBe('some_value');
 
     // after global ttl
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 550));
     expect(ls.get('some_key')).toBe('some_value');
 
     // after local ttl
-    await new Promise((res) => setTimeout(res, 1000));
+    await new Promise((res) => setTimeout(res, 1100));
     expect(ls.get('some_key')).toBe(null);
+
+    ls.set('some_key', 'some_value', { ttl: null });
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe('some_value');
   });
 
   it('When global ttl is enabled, Disable ttl for only a particular item', async () => {
-    ls.config.ttl = 1;
+    ls.config.ttl = 0.5;
     ls.set('some_key', 'some_value', { ttl: null });
     expect(ls.get('some_key')).toBe('some_value');
 
     // after global ttl, val should not be expired
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 550));
     expect(ls.get('some_key')).toBe('some_value');
+
+    // for arrays
+    ls.set('some_key', testArr, { ttl: null });
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toStrictEqual(testArr);
   });
 
   it('should encrypt the data with default implementation when encryption is enabled', () => {
     ls.config.encrypt = true;
+
+    // encrypt string
     ls.set('some_key', 'value');
     expect(localStorage.getItem('some_key')).toBe('"mÁ¬·À°m"');
     expect(ls.get('some_key')).toBe('value');
+
+    // encrypt object
+    ls.set('my object', testObj);
+    expect(localStorage.getItem('my object')).toBe(
+      '"Æm¿Ä»°mmk³°½º°¾mwm¾À»°½¸¬¹mÆm¹¬¸°mm·¬½¶k¶°¹¿mwm³°½ºm¿½À°wm¾¿½°¹²¿³m|{{wmÂ°¬¶m±¬·¾°wmÂ°´½¯m¹À··wm¬­´·´¿´°¾m¦m³°¬¿kÁ´¾´º¹mwm¾»°°¯m¨ÈÈ"'
+    );
+    expect(ls.get('my object')).toStrictEqual(testObj);
+
+    // encrypt Array
+    ls.set('myArray', testArr);
+    expect(localStorage.getItem('myArray')).toBe('"¦m»»·°mw|~w¿½À°w¹À··w±¬·¾°w|ywÆm´½º¹¸¬¹mmº¹Äk¿¬½¶mÈ¨"');
+    expect(ls.get('myArray')).toStrictEqual(testArr);
   });
 
   it('should encrypt only a particular field', () => {
@@ -146,6 +195,24 @@ describe('LS wrapper', () => {
     // calling get() without encrypt set to true
     expect(ls.get('some_key')).toBe('mÁ¬·À°m');
     expect(ls.get('some_key', { encrypt: true })).toBe('value');
+
+    // objects
+    ls.set('plainObj', testObj);
+    expect(ls.get('plainObj')).toStrictEqual(testObj);
+    expect(ls.get('plainObj', { encrypt: true })).toStrictEqual(testObj); // should work even if erroneous flag is set
+    ls.set('my object', testObj, { encrypt: true });
+    expect(ls.get('my object')).toBe(
+      'Æm¿Ä»°mmk³°½º°¾mwm¾À»°½¸¬¹mÆm¹¬¸°mm·¬½¶k¶°¹¿mwm³°½ºm¿½À°wm¾¿½°¹²¿³m|{{wmÂ°¬¶m±¬·¾°wmÂ°´½¯m¹À··wm¬­´·´¿´°¾m¦m³°¬¿kÁ´¾´º¹mwm¾»°°¯m¨ÈÈ'
+    );
+    expect(ls.get('my object', { encrypt: true })).toStrictEqual(testObj);
+
+    // arrays
+    ls.set('plainArr', testArr);
+    expect(ls.get('plainArr')).toStrictEqual(testArr);
+    expect(ls.get('plainArr', { encrypt: true })).toStrictEqual(testArr); // should work even if erroneous flag is set
+    ls.set('myArray', testArr, { encrypt: true });
+    expect(ls.get('myArray')).toBe('¦m»»·°mw|~w¿½À°w¹À··w±¬·¾°w|ywÆm´½º¹¸¬¹mmº¹Äk¿¬½¶mÈ¨');
+    expect(ls.get('myArray', { encrypt: true })).toStrictEqual(testArr);
   });
 
   it('When global encryption is enabled, using a custom secret must work', () => {
@@ -153,10 +220,20 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { secret: 83 });
     expect(localStorage.getItem('some_key')).toBe('"uÉ´¿È¸u"');
     expect(ls.get('some_key', { secret: 83 })).toBe('value');
-    // if secret is not provided, fall back to global secret and return garbage
+    // if secret is not provided, NO fall back to global secret, return encrypted value
     expect(ls.get('some_key')).toBe('uÉ´¿È¸u');
     // if correct secret is not provided, return encrypted value
     expect(ls.get('some_key', { secret: 5 })).toBe('uÉ´¿È¸u');
+
+    // objects
+    ls.set('plainObj', testObj, { secret: 95 });
+    expect(ls.get('plainObj')).toBe(
+      'ÚÓØÏÄ£¢ÇÄÑÎÄÒÒÔÏÄÑÌÀÍÚÍÀÌÄ¢ËÀÑÊÊÄÍÓÇÄÑÎÓÑÔÄÒÓÑÄÍÆÓÇÖÄÀÊÅÀËÒÄÖÄÈÑÃÍÔËËÀÁÈËÈÓÈÄÒºÇÄÀÓÕÈÒÈÎÍÒÏÄÄÃ¼ÜÜ'
+    );
+    expect(ls.get('plainObj', { secret: 91 })).toBe(
+      'ÚÓØÏÄ£¢ÇÄÑÎÄÒÒÔÏÄÑÌÀÍÚÍÀÌÄ¢ËÀÑÊÊÄÍÓÇÄÑÎÓÑÔÄÒÓÑÄÍÆÓÇÖÄÀÊÅÀËÒÄÖÄÈÑÃÍÔËËÀÁÈËÈÓÈÄÒºÇÄÀÓÕÈÒÈÎÍÒÏÄÄÃ¼ÜÜ'
+    );
+    expect(ls.get('plainObj', { secret: 95 })).toStrictEqual(testObj);
   });
 
   it('local encrypt param should take precedence over global encrypt config param', () => {
@@ -164,9 +241,50 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { encrypt: false });
     expect(localStorage.getItem('some_key')).toBe('"value"');
 
-    // if encryption was disabled, return raw value
+    // if it was not encrypted, return raw value
     expect(ls.get('some_key')).toBe('value');
     expect(ls.get('some_key', { encrypt: false })).toBe('value');
+
+    // objects
+    ls.set('plainObj', testObj, { encrypt: false });
+    expect(ls.get('plainObj')).toStrictEqual(testObj);
+    expect(ls.get('plainObj', { encrypt: false })).toStrictEqual(testObj);
+
+    // arrays
+    ls.set('myArray', testArr, { encrypt: false });
+    expect(ls.get('myArray')).toStrictEqual(testArr);
+    expect(ls.get('myArray', { encrypt: false })).toStrictEqual(testArr);
+  });
+
+  it('should return raw Data when trying to decrypt unencrypted data', () => {
+    ls.set('some_key', 'value');
+    expect(ls.get('some_key')).toBe('value');
+    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+
+    // objects
+    ls.set('test-obj', testObj);
+    expect(ls.get('test-obj', { encrypt: true })).toStrictEqual(testObj);
+  });
+
+  it('should return null when encrypted value has expired', async () => {
+    ls.config.ttl = 0.5;
+    ls.config.encrypt = true;
+    ls.set('some_key', 'value');
+    expect(ls.get('some_key')).toBe('value');
+
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe(null);
+
+    // objects
+    ls.set('some_key', testObj);
+    expect(ls.get('some_key')).toStrictEqual(testObj);
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe(null);
+
+    ls.config.encrypt = false;
+    ls.set('some_key', testObj, { encrypt: true });
+    await new Promise((res) => setTimeout(res, 550));
+    expect(ls.get('some_key')).toBe(null);
   });
 
   it('should encrypt the data with custom implementation', () => {
@@ -194,10 +312,10 @@ describe('LS wrapper', () => {
   });
 
   it('should flush() correctly', async () => {
-    ls.set('key1', 'value1', { ttl: 1 });
-    ls.set('key2', 'value2', { ttl: 1, encrypt: true });
-    ls.set('key3', 'value3', { ttl: 5 });
-    ls.set('key4', 'value4', { ttl: 5, encrypt: true });
+    ls.set('key1', 'value1', { ttl: 0.5 });
+    ls.set('key2', 'value2', { ttl: 0.5, encrypt: true });
+    ls.set('key3', 'value3', { ttl: 2 });
+    ls.set('key4', 'value4', { ttl: 2, encrypt: true });
 
     // should not flush before ttl expires
     ls.flush();
@@ -207,7 +325,7 @@ describe('LS wrapper', () => {
     expect(ls.get('key4')).toBe('mÁ¬·À°m');
 
     // expired items should be flushed
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 550));
     ls.flush();
     expect(localStorage.getItem('key1')).toBe(null);
     expect(localStorage.getItem('key2')).toBe(null);
