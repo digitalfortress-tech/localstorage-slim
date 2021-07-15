@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import ls from './ls';
+import AES from 'crypto-js/aes';
+import encUTF8 from 'crypto-js/enc-utf8';
 
 const testObj = {
   type: 'DC heroes',
@@ -309,6 +311,104 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { ttl: 3 });
     const val = JSON.parse(localStorage.getItem('some_key'));
     expect(typeof val.ttl).toBe('number');
+  });
+
+  it('should encrypt the data with Crypto JS AES encoding', async () => {
+    ls.config.encrypt = true;
+    ls.config.secret = 'my-secret-pwd';
+    const encrypt = ls.config.encrypter;
+    const decrypt = ls.config.decrypter;
+    ls.config.encrypter = (data, secret) => AES.encrypt(JSON.stringify(data), secret).toString();
+    ls.config.decrypter = (data, secret) => {
+      try {
+        return JSON.parse(AES.decrypt(data, secret).toString(encUTF8));
+      } catch (e) {
+        // incorrect/missing secret, return the encrypted data instead
+        return data;
+      }
+    };
+
+    ls.set('some_key', 'value');
+    expect(localStorage.getItem('some_key')).not.toBe('"value"'); // gives a different value each time => "U2FsdGVkX18XhBuSMqyl/PWScjKeorvlPfHCQn0JZIg"
+    expect(localStorage.getItem('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key')).toBe('value');
+
+    // retrieve with incorrect secret
+    expect(ls.get('some_key', { secret: 'another-secret' })).not.toBe('value');
+    expect(ls.get('some_key', { secret: 'another-secret' }).length).toBeGreaterThan(40);
+
+    // override global secret
+    ls.set('some_key', 'value', { secret: 'overriding-secret' });
+    expect(ls.get('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { secret: 'overriding-secret' })).toBe('value');
+
+    // with ttl
+    ls.set('some_key', 'value', { ttl: 0.2 });
+    let rawValue = JSON.parse(localStorage.getItem('some_key'));
+    expect(rawValue.ttl).not.toBe(null);
+    expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
+    expect(ls.get('some_key')).toBe('value');
+    await new Promise((res) => setTimeout(res, 250));
+    expect(ls.get('some_key')).toBe(null);
+
+    // with ttl + override global secret
+    ls.set('some_key', 'value', { ttl: 0.2, secret: 'overridden' });
+    rawValue = JSON.parse(localStorage.getItem('some_key'));
+    expect(rawValue.ttl).not.toBe(null);
+    expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
+    expect(ls.get('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { secret: 'overridden' })).toBe('value');
+    await new Promise((res) => setTimeout(res, 250));
+    expect(ls.get('some_key')).toBe(null);
+
+    // disable encryption
+    ls.set('some_key', 'value', { encrypt: false });
+    expect(localStorage.getItem('some_key')).toBe('"value"');
+
+    // disable encryption + ttl
+    ls.set('some_key', 'value', { encrypt: false, ttl: 0.2 });
+    rawValue = JSON.parse(localStorage.getItem('some_key'));
+    expect(rawValue.ttl).not.toBe(null);
+    expect(rawValue[String.fromCharCode(0)].length).toBe(5);
+    expect(ls.get('some_key')).toBe('value');
+    await new Promise((res) => setTimeout(res, 250));
+    expect(ls.get('some_key')).toBe(null);
+
+    // disable global encryption
+    ls.config.encrypt = false;
+
+    // encrypt custom field
+    ls.set('some_key', 'value', { encrypt: true });
+    expect(localStorage.getItem('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+
+    // encrypt custom field + ttl
+    ls.set('some_key', 'value', { encrypt: true, ttl: 0.2 });
+    rawValue = JSON.parse(localStorage.getItem('some_key'));
+    expect(rawValue.ttl).not.toBe(null);
+    expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
+    expect(ls.get('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+    await new Promise((res) => setTimeout(res, 250));
+    expect(ls.get('some_key')).toBe(null);
+
+    // encrypt custom field + ttl + override global secret
+    ls.set('some_key', 'value', { encrypt: true, ttl: 0.2, secret: 'special-word' });
+    rawValue = JSON.parse(localStorage.getItem('some_key'));
+    expect(rawValue.ttl).not.toBe(null);
+    expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
+    expect(ls.get('some_key').length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { encrypt: true, secret: 'special-word' })).toBe('value');
+    await new Promise((res) => setTimeout(res, 250));
+    expect(ls.get('some_key')).toBe(null);
+
+    // restore functions
+    ls.config.encrypter = encrypt;
+    ls.config.decrypter = decrypt;
   });
 
   it('should flush() correctly', async () => {
