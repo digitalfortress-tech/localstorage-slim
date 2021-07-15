@@ -14,10 +14,10 @@ An ultra slim localstorage wrapper with optional support for ttl and encryption
 
 - is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
 - is a very light-weight library [![](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
-- supports TTL (i.e. expiry of data in LocalStorage)
-- supports encryption/decryption
+- supports **TTL** (i.e. expiry of data in LocalStorage)
+- supports **encryption/decryption**
 - checks LocalStorage browser support internally
-- Allows you to store data in multiple formats (numbers, strings, objects, arrays, ...) with checks for cyclic references
+- Allows you to store data in **multiple formats** (numbers, strings, objects, arrays, ...) with checks for cyclic references
 ---
 
 ## Install
@@ -105,20 +105,21 @@ ls.config.encrypt = true;
 // optionally use a different secret key
 ls.config.secret = 57;
 ```
-Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://www.npmjs.com/package/crypto-js) to suit your needs.
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://digitalfortress.tech/js/encrypt-localstorage-data/) to suit your needs.
 
 To use a library like CryptoJS, update the following config options -
 ```javascript
 // enable encryption
 ls.config.encrypt = true;
-// override encrypter function
-ls.config.encrypter = (text: string, secret: string): string => 'encrypted string';
-// override decrypter function
-ls.config.decrypter = (encryptedString: string, secret: string): string => 'original string';
-// set a secret
+// set a global secret
 ls.config.secret = 'secretKey';
 
+// override encrypter function
+ls.config.encrypter = (data: unknown, secret: string): string => 'encrypted string';
+// override decrypter function
+ls.config.decrypter = (encryptedString: string, secret: string): unknown => 'original data';
 ```
+
 As seen, you can easily override the `encrypter` and `decrypter` functions with your own implementation of encryption/decryption logic to secure your data.
 
 ```javascript
