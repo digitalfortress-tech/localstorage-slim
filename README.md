@@ -105,7 +105,7 @@ ls.config.encrypt = true;
 // optionally use a different secret key
 ls.config.secret = 57;
 ```
-Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm with [CryptoJS](https://digitalfortress.tech/js/encrypt-localstorage-data/) to suit your needs.
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to use a secure encryption algorithm like **AES**, **TDES**, **RC4** or **rabbit** via **[CryptoJS](https://digitalfortress.tech/js/encrypt-localstorage-data/)** to suit your needs.
 
 To use a library like CryptoJS, update the following config options -
 ```javascript
