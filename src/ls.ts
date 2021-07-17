@@ -53,7 +53,7 @@ const config: LocalStorageConfig = {
   ttl: null,
   encrypt: false,
   encrypter: obfus,
-  decrypter: decrypter,
+  decrypter,
   secret: 75,
 };
 
@@ -108,7 +108,7 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
   let item = JSON.parse(str);
   const hasTTL = isObject(item) && APX in item;
 
-  if (_conf.encrypt) {
+  if (_conf.decrypt || _conf.encrypt) {
     try {
       if (hasTTL) {
         item[APX] = (_conf.decrypter || NOOP)(item[APX], _conf.secret) as string;

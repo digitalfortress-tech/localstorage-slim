@@ -204,15 +204,16 @@ describe('LS wrapper', () => {
     expect(ls.get('my object')).toBe(
       'Æm¿Ä»°mmk³°½º°¾mwm¾À»°½¸¬¹mÆm¹¬¸°mm·¬½¶k¶°¹¿mwm³°½ºm¿½À°wm¾¿½°¹²¿³m|{{wmÂ°¬¶m±¬·¾°wmÂ°´½¯m¹À··wm¬­´·´¿´°¾m¦m³°¬¿kÁ´¾´º¹mwm¾»°°¯m¨ÈÈ'
     );
-    expect(ls.get('my object', { encrypt: true })).toStrictEqual(testObj);
+    expect(ls.get('my object', { decrypt: true })).toStrictEqual(testObj);
 
     // arrays
     ls.set('plainArr', testArr);
     expect(ls.get('plainArr')).toStrictEqual(testArr);
     expect(ls.get('plainArr', { encrypt: true })).toStrictEqual(testArr); // should work even if erroneous flag is set
+    expect(ls.get('plainArr', { decrypt: true })).toStrictEqual(testArr); // should work even if erroneous flag is set
     ls.set('myArray', testArr, { encrypt: true });
     expect(ls.get('myArray')).toBe('¦m»»·°mw|~w¿½À°w¹À··w±¬·¾°w|ywÆm´½º¹¸¬¹mmº¹Äk¿¬½¶mÈ¨');
-    expect(ls.get('myArray', { encrypt: true })).toStrictEqual(testArr);
+    expect(ls.get('myArray', { decrypt: true })).toStrictEqual(testArr);
   });
 
   it('When global encryption is enabled, using a custom secret must work', () => {
@@ -243,27 +244,27 @@ describe('LS wrapper', () => {
 
     // if it was not encrypted, return raw value
     expect(ls.get('some_key')).toBe('value');
-    expect(ls.get('some_key', { encrypt: false })).toBe('value');
+    expect(ls.get('some_key', { decrypt: false })).toBe('value');
 
     // objects
     ls.set('plainObj', testObj, { encrypt: false });
     expect(ls.get('plainObj')).toStrictEqual(testObj);
-    expect(ls.get('plainObj', { encrypt: false })).toStrictEqual(testObj);
+    expect(ls.get('plainObj', { decrypt: false })).toStrictEqual(testObj);
 
     // arrays
     ls.set('myArray', testArr, { encrypt: false });
     expect(ls.get('myArray')).toStrictEqual(testArr);
-    expect(ls.get('myArray', { encrypt: false })).toStrictEqual(testArr);
+    expect(ls.get('myArray', { decrypt: false })).toStrictEqual(testArr);
   });
 
   it('should return raw Data when trying to decrypt unencrypted data', () => {
     ls.set('some_key', 'value');
     expect(ls.get('some_key')).toBe('value');
-    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+    expect(ls.get('some_key', { decrypt: true })).toBe('value');
 
     // objects
     ls.set('test-obj', testObj);
-    expect(ls.get('test-obj', { encrypt: true })).toStrictEqual(testObj);
+    expect(ls.get('test-obj', { decrypt: true })).toStrictEqual(testObj);
   });
 
   it('should return null when encrypted value has expired', async () => {
@@ -379,7 +380,7 @@ describe('LS wrapper', () => {
     ls.set('some_key', 'value', { encrypt: true });
     expect(localStorage.getItem('some_key').length).toBeGreaterThan(40);
     expect(ls.get('some_key').length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+    expect(ls.get('some_key', { decrypt: true })).toBe('value');
 
     // encrypt custom field + ttl
     ls.set('some_key', 'value', { encrypt: true, ttl: 0.2 });
@@ -387,8 +388,8 @@ describe('LS wrapper', () => {
     expect(rawValue.ttl).not.toBe(null);
     expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
     expect(ls.get('some_key').length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true })).toBe('value');
+    expect(ls.get('some_key', { decrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { decrypt: true })).toBe('value');
     await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe(null);
 
@@ -398,11 +399,15 @@ describe('LS wrapper', () => {
     expect(rawValue.ttl).not.toBe(null);
     expect(rawValue[String.fromCharCode(0)].length).toBeGreaterThan(40);
     expect(ls.get('some_key').length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true }).length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
-    expect(ls.get('some_key', { encrypt: true, secret: 'special-word' })).toBe('value');
+    expect(ls.get('some_key', { decrypt: true }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { decrypt: true, secret: 'incorrect-secret' }).length).toBeGreaterThan(40);
+    expect(ls.get('some_key', { decrypt: true, secret: 'special-word' })).toBe('value');
     await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe(null);
+
+    // retrieve with erroneous flag
+    ls.set('some_key', 'value', { encrypt: false });
+    expect(ls.get('some_key', { decrypt: true })).toBe('value');
 
     // restore functions
     ls.config.encrypter = encrypt;

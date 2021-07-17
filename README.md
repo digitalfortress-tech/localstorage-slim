@@ -88,7 +88,8 @@ const result2 = ls.get('key2');  // null
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 |`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localstorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
-|`encrypt?: boolean` |Allows you to setup encryption of the data stored in localstorage. [Details](#encryption) **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API  | false|
+|`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localstorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  | false|
+|`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localstorage. Used only by the [`ls.get()`](#lsget) API | undefined|
 |`encrypter?: (input: string, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
 |`decrypter?: (encryptedString: string, secret: string): string`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
 |`secret: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  |75|
@@ -189,7 +190,7 @@ console.log('Value =>', value); // value retrieved from LS
 ls.get('key'); // returns the value if ttl has not expired, else returns null
 
 // when a particular field is encrypted, and it needs decryption
-ls.get('key', { encrypt: true });
+ls.get('key', { decrypt: true });
 
 // get decrypted value when global encryption is enabled
 ls.config.encrypt = true;
