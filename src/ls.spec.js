@@ -101,72 +101,70 @@ describe('LS wrapper', () => {
 
     ls.set('some_object', exp);
     expect(ls.get('some_object')).toStrictEqual(exp);
-    ls.set('some_object', exp, { ttl: 0.5 });
+    ls.set('some_object', exp, { ttl: 0.2 });
     expect(ls.get('some_object')).toStrictEqual(exp);
 
     // should expire after 0.5s and not after 3s
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_object')).toBe(null);
   });
 
   it('Calling get() should return null after ttl expires', async () => {
-    ls.set('some_key', 'some_value', { ttl: 1 });
+    ls.set('some_key', 'some_value', { ttl: 0.1 });
     expect(ls.get('some_key')).toBe('some_value');
 
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe(null);
 
-    ls.set('some_key', testObj, { ttl: 0.5 });
+    ls.set('some_key', testObj, { ttl: 0.2 });
     expect(ls.get('some_key')).toStrictEqual(testObj);
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe(null);
   });
 
   it('Calling get() should return null after global ttl expires', async () => {
-    ls.config.ttl = 0.5;
+    ls.config.ttl = 0.2;
     ls.set('some_key', 'some_value');
     expect(ls.get('some_key')).toBe('some_value');
 
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe(null);
 
     ls.set('some_key', testObj);
     expect(ls.get('some_key')).toStrictEqual(testObj);
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe(null);
   });
 
   it('Local ttl should take precedence over global ttl (conf)', async () => {
-    ls.config.ttl = 0.5;
-    ls.set('some_key', 'some_value', { ttl: 1 });
+    ls.config.ttl = 0.01;
+    ls.set('some_key', 'some_value', { ttl: 0.1 });
     expect(ls.get('some_key')).toBe('some_value');
 
     // after global ttl
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 50));
     expect(ls.get('some_key')).toBe('some_value');
 
     // after local ttl
-    await new Promise((res) => setTimeout(res, 1100));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe(null);
 
     ls.set('some_key', 'some_value', { ttl: null });
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe('some_value');
   });
 
   it('When global ttl is enabled, Disable ttl for only a particular item', async () => {
-    ls.config.ttl = 0.5;
+    ls.config.ttl = 0.2;
     ls.set('some_key', 'some_value', { ttl: null });
+    ls.set('some_array', testArr, { ttl: null });
+
     expect(ls.get('some_key')).toBe('some_value');
 
     // after global ttl, val should not be expired
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe('some_value');
-
-    // for arrays
-    ls.set('some_key', testArr, { ttl: null });
-    await new Promise((res) => setTimeout(res, 550));
-    expect(ls.get('some_key')).toStrictEqual(testArr);
+    expect(ls.get('some_array')).toStrictEqual(testArr);
   });
 
   it('should encrypt the data with default implementation when encryption is enabled', () => {
@@ -269,23 +267,23 @@ describe('LS wrapper', () => {
   });
 
   it('should return null when encrypted value has expired', async () => {
-    ls.config.ttl = 0.5;
+    ls.config.ttl = 0.1;
     ls.config.encrypt = true;
     ls.set('some_key', 'value');
     expect(ls.get('some_key')).toBe('value');
 
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe(null);
 
     // objects
     ls.set('some_key', testObj);
     expect(ls.get('some_key')).toStrictEqual(testObj);
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe(null);
 
     ls.config.encrypt = false;
     ls.set('some_key', testObj, { encrypt: true });
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe(null);
   });
 
@@ -412,10 +410,10 @@ describe('LS wrapper', () => {
   });
 
   it('should flush() correctly', async () => {
-    ls.set('key1', 'value1', { ttl: 0.5 });
-    ls.set('key2', 'value2', { ttl: 0.5, encrypt: true });
-    ls.set('key3', 'value3', { ttl: 2 });
-    ls.set('key4', 'value4', { ttl: 2, encrypt: true });
+    ls.set('key1', 'value1', { ttl: 0.2 });
+    ls.set('key2', 'value2', { ttl: 0.2, encrypt: true });
+    ls.set('key3', 'value3', { ttl: 1 });
+    ls.set('key4', 'value4', { ttl: 1, encrypt: true });
 
     // should not flush before ttl expires
     ls.flush();
@@ -425,7 +423,7 @@ describe('LS wrapper', () => {
     expect(ls.get('key4')).toBe('mÁ¬·À°m');
 
     // expired items should be flushed
-    await new Promise((res) => setTimeout(res, 550));
+    await new Promise((res) => setTimeout(res, 250));
     ls.flush();
     expect(localStorage.getItem('key1')).toBe(null);
     expect(localStorage.getItem('key2')).toBe(null);
