@@ -7,8 +7,7 @@
 import { isObject, NOOP } from './helpers';
 import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
 
-// Flags
-let flushOnInit = true;
+// private flags
 let hasLS: boolean;
 
 const supportsLS = (): boolean => {
@@ -26,10 +25,7 @@ const supportsLS = (): boolean => {
   hasLS = true;
 
   // flush once on init
-  if (flushOnInit) {
-    flushOnInit = false;
-    flush();
-  }
+  flush();
 
   return hasLS;
 };
