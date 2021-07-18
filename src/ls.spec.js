@@ -2,6 +2,9 @@
 // @ts-nocheck
 import ls from './ls';
 import AES from 'crypto-js/aes';
+import tripleDES from 'crypto-js/tripledes';
+import RC4 from 'crypto-js/rc4';
+import rabbit from 'crypto-js/rabbit';
 import encUTF8 from 'crypto-js/enc-utf8';
 
 const testObj = {
@@ -48,10 +51,89 @@ describe('LS wrapper', () => {
     expect(ls.set('some_key1', 'some_value1', { ttl: 3 })).toBe(undefined);
   });
 
-  it('LS should set(), get() correct value (with/without ttl)', async () => {
+  it('LS should set(), get() correct value', () => {
     // string values
     ls.set('some_key', 'some_value');
     expect(ls.get('some_key')).toBe('some_value');
+
+    // objects
+    const inputObj = {
+      a: null,
+      b: undefined,
+      c: 'xyz',
+      d: new Date('2021/2/27 11:00:00 GMT').toUTCString(),
+      e: ['x', 1, { z: false }],
+    };
+    const outputObj = {
+      a: null,
+      c: 'xyz',
+      d: 'Sat, 27 Feb 2021 11:00:00 GMT',
+      e: ['x', 1, { z: false }],
+    };
+    ls.set('some_object', inputObj);
+    expect(ls.get('some_object')).toStrictEqual(outputObj);
+
+    // arrays
+    const inputArr = [
+      'a',
+      1,
+      null,
+      true,
+      false,
+      undefined,
+      new Date('2021/2/27 11:00:00 GMT').toUTCString(),
+      { x: undefined, y: 'yellow' },
+    ];
+    const outputArr = ['a', 1, null, true, false, null, 'Sat, 27 Feb 2021 11:00:00 GMT', { y: 'yellow' }];
+    ls.set('some_array', inputArr);
+    expect(ls.get('some_array')).toStrictEqual(outputArr);
+
+    // exceptional cases: setting ttl as value inside an object
+    const exp = {
+      ttl: 3,
+      value: 'xyz',
+    };
+
+    ls.set('some_object', exp);
+    expect(ls.get('some_object')).toStrictEqual(exp);
+  });
+
+  it('should flush() correctly', async () => {
+    ls.set('key1', 'value1', { ttl: 0.2 });
+    ls.set('key2', 'value2', { ttl: 0.2, encrypt: true });
+    ls.set('key3', 'value3', { ttl: 1 });
+    ls.set('key4', 'value4', { ttl: 1, encrypt: true });
+
+    // should not flush before ttl expires
+    ls.flush();
+    expect(ls.get('key1')).toBe('value1');
+    expect(ls.get('key2')).toBe('mÁ¬·À°}m');
+    expect(ls.get('key3')).toBe('value3');
+    expect(ls.get('key4')).toBe('mÁ¬·À°m');
+
+    // expired items should be flushed
+    await new Promise((res) => setTimeout(res, 250));
+    ls.flush();
+    expect(localStorage.getItem('key1')).toBe(null);
+    expect(localStorage.getItem('key2')).toBe(null);
+
+    // force flush whether items are expired or not
+    ls.flush(true);
+    expect(ls.get('key3')).toBe(null);
+    expect(ls.get('key4')).toBe(null);
+  });
+});
+
+describe('TTL', () => {
+  beforeEach(() => {
+    global.localStorage.clear();
+    ls.config.ttl = null;
+    ls.config.encrypt = false;
+    ls.config.secret = 75;
+  });
+
+  it('LS should set(), get() correct value with TTL', async () => {
+    // string values
     ls.set('some_key1', 'some_value1', { ttl: 3 });
     expect(ls.get('some_key1')).toBe('some_value1');
     const val = JSON.parse(localStorage.getItem('some_key1'));
@@ -71,8 +153,6 @@ describe('LS wrapper', () => {
       d: 'Sat, 27 Feb 2021 11:00:00 GMT',
       e: ['x', 1, { z: false }],
     };
-    ls.set('some_object', inputObj);
-    expect(ls.get('some_object')).toStrictEqual(outputObj);
     ls.set('some_object', inputObj, { ttl: 3 });
     expect(ls.get('some_object')).toStrictEqual(outputObj);
 
@@ -88,8 +168,6 @@ describe('LS wrapper', () => {
       { x: undefined, y: 'yellow' },
     ];
     const outputArr = ['a', 1, null, true, false, null, 'Sat, 27 Feb 2021 11:00:00 GMT', { y: 'yellow' }];
-    ls.set('some_array', inputArr);
-    expect(ls.get('some_array')).toStrictEqual(outputArr);
     ls.set('some_array', inputArr, { ttl: 2 });
     expect(ls.get('some_array')).toStrictEqual(outputArr);
 
@@ -99,8 +177,6 @@ describe('LS wrapper', () => {
       value: 'xyz',
     };
 
-    ls.set('some_object', exp);
-    expect(ls.get('some_object')).toStrictEqual(exp);
     ls.set('some_object', exp, { ttl: 0.2 });
     expect(ls.get('some_object')).toStrictEqual(exp);
 
@@ -165,6 +241,15 @@ describe('LS wrapper', () => {
     await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe('some_value');
     expect(ls.get('some_array')).toStrictEqual(testArr);
+  });
+});
+
+describe('Local encryption', () => {
+  beforeEach(() => {
+    global.localStorage.clear();
+    ls.config.ttl = null;
+    ls.config.encrypt = true;
+    ls.config.secret = 75;
   });
 
   it('should encrypt the data with default implementation when encryption is enabled', () => {
@@ -311,10 +396,17 @@ describe('LS wrapper', () => {
     const val = JSON.parse(localStorage.getItem('some_key'));
     expect(typeof val.ttl).toBe('number');
   });
+});
 
-  it('should encrypt the data with Crypto JS AES encoding', async () => {
+describe('Crypto JS', () => {
+  beforeEach(() => {
+    global.localStorage.clear();
+    ls.config.ttl = null;
     ls.config.encrypt = true;
     ls.config.secret = 'my-secret-pwd';
+  });
+
+  it('should encrypt the data using AES algorithm', async () => {
     const encrypt = ls.config.encrypter;
     const decrypt = ls.config.decrypter;
     ls.config.encrypter = (data, secret) => AES.encrypt(JSON.stringify(data), secret).toString();
@@ -414,28 +506,72 @@ describe('LS wrapper', () => {
     ls.config.decrypter = decrypt;
   });
 
-  it('should flush() correctly', async () => {
-    ls.set('key1', 'value1', { ttl: 0.2 });
-    ls.set('key2', 'value2', { ttl: 0.2, encrypt: true });
-    ls.set('key3', 'value3', { ttl: 1 });
-    ls.set('key4', 'value4', { ttl: 1, encrypt: true });
+  it('should encrypt the data using TripleDES algorithm', () => {
+    const encrypt = ls.config.encrypter;
+    const decrypt = ls.config.decrypter;
+    ls.config.encrypter = (data, secret) => tripleDES.encrypt(JSON.stringify(data), secret).toString();
+    ls.config.decrypter = (data, secret) => {
+      try {
+        return JSON.parse(tripleDES.decrypt(data, secret).toString(encUTF8));
+      } catch (e) {
+        // incorrect/missing secret, return the encrypted data instead
+        return data;
+      }
+    };
 
-    // should not flush before ttl expires
-    ls.flush();
-    expect(ls.get('key1')).toBe('value1');
-    expect(ls.get('key2')).toBe('mÁ¬·À°}m');
-    expect(ls.get('key3')).toBe('value3');
-    expect(ls.get('key4')).toBe('mÁ¬·À°m');
+    ls.set('some_key', 'value');
+    expect(localStorage.getItem('some_key')).not.toBe('"value"'); // gives a different value each time => "U2FsdGVkX18XhBuSMqyl/PWScjKeorvlPfHCQn0JZIg"
+    expect(localStorage.getItem('some_key').length).toBeGreaterThan(30);
+    expect(ls.get('some_key')).toBe('value');
 
-    // expired items should be flushed
-    await new Promise((res) => setTimeout(res, 250));
-    ls.flush();
-    expect(localStorage.getItem('key1')).toBe(null);
-    expect(localStorage.getItem('key2')).toBe(null);
+    // restore functions
+    ls.config.encrypter = encrypt;
+    ls.config.decrypter = decrypt;
+  });
 
-    // force flush whether items are expired or not
-    ls.flush(true);
-    expect(ls.get('key3')).toBe(null);
-    expect(ls.get('key4')).toBe(null);
+  it('should encrypt the data using RC4 algorithm', () => {
+    const encrypt = ls.config.encrypter;
+    const decrypt = ls.config.decrypter;
+    ls.config.encrypter = (data, secret) => RC4.encrypt(JSON.stringify(data), secret).toString();
+    ls.config.decrypter = (data, secret) => {
+      try {
+        return JSON.parse(RC4.decrypt(data, secret).toString(encUTF8));
+      } catch (e) {
+        // incorrect/missing secret, return the encrypted data instead
+        return data;
+      }
+    };
+
+    ls.set('some_key', 'value');
+    expect(localStorage.getItem('some_key')).not.toBe('"value"'); // gives a different value each time => "U2FsdGVkX18XhBuSMqyl/PWScjKeorvlPfHCQn0JZIg"
+    expect(localStorage.getItem('some_key').length).toBeGreaterThan(30);
+    expect(ls.get('some_key')).toBe('value');
+
+    // restore functions
+    ls.config.encrypter = encrypt;
+    ls.config.decrypter = decrypt;
+  });
+
+  it('should encrypt the data using Rabbit algorithm', () => {
+    const encrypt = ls.config.encrypter;
+    const decrypt = ls.config.decrypter;
+    ls.config.encrypter = (data, secret) => rabbit.encrypt(JSON.stringify(data), secret).toString();
+    ls.config.decrypter = (data, secret) => {
+      try {
+        return JSON.parse(rabbit.decrypt(data, secret).toString(encUTF8));
+      } catch (e) {
+        // incorrect/missing secret, return the encrypted data instead
+        return data;
+      }
+    };
+
+    ls.set('some_key', 'value');
+    expect(localStorage.getItem('some_key')).not.toBe('"value"'); // gives a different value each time => "U2FsdGVkX18XhBuSMqyl/PWScjKeorvlPfHCQn0JZIg"
+    expect(localStorage.getItem('some_key').length).toBeGreaterThan(30);
+    expect(ls.get('some_key')).toBe('value');
+
+    // restore functions
+    ls.config.encrypter = encrypt;
+    ls.config.decrypter = decrypt;
   });
 });
