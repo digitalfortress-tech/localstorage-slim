@@ -226,7 +226,11 @@ Clears the entire localstorage linked to the current domain.
 // removes all data from the LS
 ls.clear(); // returns undefined if successful, false otherwise
 ```
+---
 
+### Screenshot
+
+<img src="screenshot.jpg">
 ---
 
 ### Contribute
