@@ -48,7 +48,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@2.0.0/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@2.1.0/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
@@ -59,7 +59,7 @@ Typical usage of localstorage-slim is as follows:
 #### Javascript
 
 ```javascript
-// store in localstorage
+/*** Store in localstorage ***/
 const value = {
   a: new Date(),
   b: null,
@@ -69,8 +69,9 @@ const value = {
 }
 ls.set('key1', value); // value can be anything (object, array, string, numbers,...)
 ls.set('key2', value, { ttl: 5 }); // with optional ttl in seconds
+ls.set('key3', value, { encrypt: true }); // with optional encryption
 
-// get from localstorage
+/*** Retrieve from localstorage ***/
 const result1 = ls.get('key1');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
 
 // within 5 seconds
@@ -78,6 +79,7 @@ const result2 = ls.get('key2');  // { a: "currentdate", b: "null", c: false, d: 
 // after 5 seconds
 const result2 = ls.get('key2');  // null
 
+const result3 = ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
 ```
 
 ---
@@ -105,9 +107,9 @@ LocalStorage-slim allows you to encrypt the data that will be stored in your loc
 ls.config.encrypt = true;
 
 // optionally use a different secret key
-ls.config.secret = 57;
+ls.config.secret = 89;
 ```
-Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to write your own algorithm or to use a secure encryption algorithm like **AES**, **TDES**, **RC4** or **rabbit** via **[CryptoJS](https://digitalfortress.tech/js/encrypt-localstorage-data/)** to suit your needs.
+Enabling encryption ensures that the data stored in your localStorage will be unreadable by majority of the users. **Be aware** of the fact that default implementation is not a true encryption but a mere obfuscation to keep the library light in weight. You can customize the `encrypter`/`decrypter` functions to write your own algorithm or to use a secure encryption algorithm like **AES**, **TDES**, **RC4** or **rabbit** via **[CryptoJS](https://www.npmjs.com/package/crypto-js)** to suit your needs.
 
 To use a library like CryptoJS, update the following config options -
 ```javascript
@@ -245,4 +247,4 @@ See the [Changelog](https://github.com/niketpathak/localstorage-slim/wiki/Change
 
 ### License
 
-[MIT](LICENSE) © [Niket Pathak](https://niketpathak.com)
+[MIT](LICENSE) © [Digital Fortress](https://digitalfortress.tech)

@@ -2,7 +2,7 @@
   "name": "localstorage-slim",
   "title": "localstorage-slim",
   "description": "An ultra slim localstorage wrapper with optional support for ttl and encryption",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "homepage": "https://github.com/digitalfortress-tech/localstorage-slim",
   "license": "MIT",
   "scripts": {
@@ -49,6 +49,8 @@
     "localstorage",
     "localstorage-ttl",
     "ttl-localstorage",
+    "lscache",
+    "ls-cache",
     "encrypt-localstorage",
     "localstorage-encrypt",
     "localstorage encrypt",
@@ -62,7 +64,13 @@
     "tiny localstorage",
     "mini localstorage",
     "slim localstorage",
-    "localstorage-slim.js"
+    "localstorage-slim.js",
+    "secure-ls",
+    "secure ls",
+    "encrypt-ls",
+    "encrypt ls",
+    "encrypt localstorage",
+    "encrypt-localstorage"
   ],
   "devDependencies": {
     "@babel/core": "^7.12.3",
