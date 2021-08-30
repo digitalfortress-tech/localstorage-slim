@@ -26,7 +26,7 @@
     "email": "contact@niketpathak.com",
     "url": "https://niketpathak.com"
   },
-  "browser": "dist/localstorage-slim.min.js",
+  "browser": "dist/localstorage-slim.js",
   "main": "dist/localstorage-slim.js",
   "types": "./dist/ls.d.ts",
   "repository": {
