@@ -57,4 +57,43 @@ if (dev) {
   window.ls.set('test2', test, { encrypt: true });
   window.ls.set('test3', test, { ttl: 50 });
   window.ls.set('test4', test, { ttl: 10, encrypt: true });
+  // ls.config.encrypt = true;
+
+  window.ls.config.cb = (k) => {
+    alert('Callback executed for key -> ' + k);
+  };
+  test = ['ff', { true: 343 }, 2];
+  // console.log('test :>> ', test);
+
+  window.ls.set(
+    'testItem',
+    { testObj: 'value' },
+    {
+      ttl: 3,
+      //cb: (k) => {
+      // alert('Callback executed for key -> ' + k);
+      //},
+    }
+  );
+
+  window.ls.set(
+    'nik',
+    { testObj: 'value' },
+    {
+      ttl: 5,
+      //cb: (k) => {
+      // alert('Callback executed for key -> ' + k);
+      //},
+    }
+  );
+
+  window.ls.set(
+    'amy',
+    { testObj: 'value' },
+    {
+      cb: (k) => {
+        alert('Override for key -> ' + k);
+      },
+    }
+  );
 }

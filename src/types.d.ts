@@ -11,4 +11,5 @@ export interface StorageConfig {
   encrypter?: Encrypter;
   decrypter?: Decrypter;
   secret?: unknown;
+  cb?: (...args: unknown[]) => unknown;
 }

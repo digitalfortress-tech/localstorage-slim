@@ -22,7 +22,8 @@ const init = () => {
     storage = memoryStore();
   }
 
-  flush();
+  // poll/flush/setup callbacks on init
+  poll();
 };
 
 // Apex
@@ -37,6 +38,14 @@ const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) =>
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
 
 const decrypter: Decrypter = (str, key) => encrypter(str, key, false);
+
+// Callback polling
+let cbRefs: NodeJS.Timeout[] = [];
+const poll = (forceFlush = false): void => {
+  cbRefs.forEach((ref) => clearTimeout(ref));
+  cbRefs = [];
+  flush(forceFlush);
+};
 
 const config: StorageConfig = {
   ttl: null,
@@ -75,7 +84,16 @@ const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}
       }
     }
 
+    // If a callback was specified store it
+    if (_conf.ttl && APX in (val as Record<string, unknown>) && _conf.cb && typeof _conf.cb === 'function') {
+      (val as Record<string, unknown>).cb = `${_conf.cb}`;
+    }
+
     storage.setItem(key, JSON.stringify(val));
+
+    if (_conf.ttl && APX in (val as Record<string, unknown>)) {
+      poll();
+    }
   } catch {
     // Sometimes stringify fails due to circular refs
     return false;
@@ -138,8 +156,19 @@ const flush = (force = false): void => {
       return;
     }
     // flush only if ttl was set and is expired or is forced to clear
-    if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
-      storage.removeItem(key);
+    // if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
+    //   storage.removeItem(key);
+
+    // if ttl is set
+    if (isObject(item) && APX in item) {
+      // flush if has/has not expired
+      if (Date.now() > item.ttl || force) {
+        storage.remove(key);
+      } else if (item.cb) {
+        // setup callback
+        const cb = new Function('key', `storage.remove(key);(${item.cb})(key)`);
+        cbRefs.push(setTimeout(cb, item.ttl - Date.now(), key) as unknown as NodeJS.Timeout);
+      }
     }
   }
 };
@@ -158,7 +187,7 @@ export default {
   config,
   set,
   get,
-  flush,
   clear,
   remove,
+  poll,
 };

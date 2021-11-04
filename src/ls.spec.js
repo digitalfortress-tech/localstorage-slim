@@ -107,14 +107,14 @@ describe('LS wrapper', () => {
     expect(ls.get('some_object')).toStrictEqual(exp);
   });
 
-  it('should flush() correctly', async () => {
+  it('should flush / poll() correctly', async () => {
     ls.set('key1', 'value1', { ttl: 0.2 });
     ls.set('key2', 'value2', { ttl: 0.2, encrypt: true });
     ls.set('key3', 'value3', { ttl: 1 });
     ls.set('key4', 'value4', { ttl: 1, encrypt: true });
 
     // should not flush before ttl expires
-    ls.flush();
+    ls.poll();
     expect(ls.get('key1')).toBe('value1');
     expect(ls.get('key2')).toBe('mÁ¬·À°}m');
     expect(ls.get('key3')).toBe('value3');
@@ -122,12 +122,12 @@ describe('LS wrapper', () => {
 
     // expired items should be flushed
     await new Promise((res) => setTimeout(res, 250));
-    ls.flush();
+    ls.poll();
     expect(localStorage.getItem('key1')).toBe(null);
     expect(localStorage.getItem('key2')).toBe(null);
 
     // force flush whether items are expired or not
-    ls.flush(true);
+    ls.poll(true);
     expect(ls.get('key3')).toBe(null);
     expect(ls.get('key4')).toBe(null);
   });
@@ -286,6 +286,19 @@ describe('TTL', () => {
     await new Promise((res) => setTimeout(res, 250));
     expect(ls.get('some_key')).toBe('some_value');
     expect(ls.get('some_array')).toStrictEqual(testArr);
+  });
+
+  xit('Callback on ttl gets executed', async () => {
+    ls.config.ttl = 0.1;
+
+    const mockfn = jest.fn();
+    ls.set('some_key', 'some_value', { cb: (key, mockfn) => mockfn, ttl: 0.1 });
+
+    expect(ls.get('some_key')).toBe('some_value');
+
+    // after global ttl, val should not be expired
+    await new Promise((res) => setTimeout(res, 200));
+    expect(mockfn).toHaveBeenCalled();
   });
 });
 
