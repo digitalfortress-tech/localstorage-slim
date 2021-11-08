@@ -12,12 +12,12 @@ let hasLS: boolean;
 
 const supportsLS = (): boolean => {
   if (hasLS !== undefined) return hasLS;
+  hasLS = true;
 
   try {
     if (!localStorage) {
       hasLS = false;
     }
-    hasLS = true;
   } catch (e) {
     // some browsers throw an error if you try to access local storage (e.g. brave browser)
     // and some like Safari do not allow access to LS in incognito mode
