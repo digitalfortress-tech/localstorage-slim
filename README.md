@@ -233,6 +233,7 @@ ls.clear(); // returns undefined if successful, false otherwise
 ### Screenshot
 
 <img src="screenshot.jpg">
+
 ---
 
 ### Contribute
