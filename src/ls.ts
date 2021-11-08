@@ -12,6 +12,7 @@ let hasLS: boolean;
 
 const supportsLS = (): boolean => {
   if (hasLS !== undefined) return hasLS;
+  hasLS = true;
 
   try {
     if (!localStorage) {
@@ -22,7 +23,6 @@ const supportsLS = (): boolean => {
     // and some like Safari do not allow access to LS in incognito mode
     hasLS = false;
   }
-  hasLS = true;
 
   // flush once on init
   flush();
