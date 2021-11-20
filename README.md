@@ -10,7 +10,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=PZ5ULVZBZX55A)
 
 ---
-An ultra slim localstorage wrapper with optional support for **ttl** and **encryption**
+An ultra slim localstorage wrapper with support for **ttl** and **encryption**
 
 **🌟 Highlights 🌟**
 
@@ -93,6 +93,7 @@ ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 |`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localStorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|`null`|
+|`cb?: Function` |Allows you to set a global callback which will be executed at the end of the `ttl`. It receives 1 parameter by default which is the name of the key. **Global `cb`** can be overriden with the `ls.set()` API. Use callback with caution as it sets timers|undefined|
 |`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localStorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  |`false`|
 |`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localStorage. Used **only** by the [`ls.get()`](#lsget) API |`undefined`|
 |`encrypter?: (data: unknown, secret: string): string` |The encryption function to be used. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
@@ -171,7 +172,7 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 * [`ls.set()`](#lsset)
 * [`ls.get()`](#lsget)
-* [`ls.flush()`](#lsflush)
+* [`ls.poll()`](#lspoll)
 * [`ls.remove()`](#lsremove)
 * [`ls.clear()`](#lsclear)
 
@@ -224,9 +225,9 @@ ls.config.encrypt = true;
 ls.get('key'); // returns decrypted value
 ```
 
-#### 🔸 3. <a id="lsflush">`ls.flush(force = false)`</a>
+#### 🔸 3. <a id="lspoll">`ls.poll(forceFlush = false)`</a>
 
-Flushes expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. If set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `flush(true)` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
+Verifies the status of items in the LS. Flushes expired items if needed and sets up callbacks. This function is called once automatically on initialization. It can accept an **optional** argument `forceFlush: boolean` that defaults to `false`. If set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `poll(true);` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
 
 ```javascript
 // removes all expired data (i.e. ttl has expired)
