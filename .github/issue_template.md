@@ -1,5 +1,5 @@
 Your issue may already be reported!
-Please search on the [issue track](../) before creating one.
+Please search on the [issue track](https://github.com/digitalfortress-tech/localstorage-slim/issues) before creating one.
 
 ## Expected Behavior
 <!--- If you're describing a bug, tell us what should happen -->
@@ -27,4 +27,5 @@ Please search on the [issue track](../) before creating one.
 ## Tested on:
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 * Browser Name and version:
+* Localstorage-slim.js version:
 * Operating System and version (desktop or mobile):
