@@ -6,6 +6,7 @@
 ![Downloads](https://img.shields.io/npm/dt/localstorage-slim)
 ![maintained](https://img.shields.io/badge/maintained-yes-blueviolet)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=PZ5ULVZBZX55A)
 
 ---
 An ultra slim localstorage wrapper with optional support for **ttl** and **encryption**
@@ -13,7 +14,7 @@ An ultra slim localstorage wrapper with optional support for **ttl** and **encry
 **localstorage-slim.js**
 
 - is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
-- is a very light-weight library [![](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
+- is a very light-weight library [![~1kB](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
 - supports **TTL** (i.e. expiry of data in LocalStorage)
 - supports **encryption/decryption**
 - checks LocalStorage browser support internally
