@@ -64,11 +64,12 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
   };
 
   try {
-    let val = _conf.ttl && _conf.ttl > 0 ? { [APX]: value, ttl: Date.now() + _conf.ttl * 1e3 } : value;
+    const hasTTL = _conf.ttl && !isNaN(_conf.ttl) && _conf.ttl > 0;
+    let val = hasTTL ? { [APX]: value, ttl: Date.now() + (_conf.ttl as number) * 1e3 } : value;
 
     if (_conf.encrypt) {
       // if ttl exists, only encrypt the value
-      if (_conf.ttl && APX in (val as Record<string, unknown>)) {
+      if (hasTTL) {
         (val as Record<string, unknown>)[APX] = (_conf.encrypter || NOOP)(
           (val as Record<string, unknown>)[APX],
           _conf.secret
@@ -113,7 +114,7 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
       }
     } catch (e) {
       // Either the secret is incorrect or there was a parsing error
-      // do nothing [returns the encrypted/unparsed value]
+      // do nothing [i.e. return the encrypted/unparsed value]
     }
   }
 
