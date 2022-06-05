@@ -11,17 +11,18 @@
 ---
 An ultra slim localstorage wrapper with optional support for **ttl** and **encryption**
 
-**localstorage-slim.js**
+**🌟 Highlights 🌟**
 
-- is an pure JS localstorage wrapper with **ZERO DEPENDENCIES**!
-- is a very light-weight library [![~1kB](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
-- supports **TTL** (i.e. expiry of data in LocalStorage)
-- supports **encryption/decryption**
-- checks LocalStorage browser support internally
-- Allows you to store data in **multiple formats** (numbers, strings, objects, arrays, ...) with checks for cyclic references
+- 📦 A localStorage wrapper with **0 DEPENDENCIES** in pure JS (Typescript)!
+- 🔥 A super light-weight library [![<1kB minzipped](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
+- ⏰ Supports **TTL** (i.e. expiry of data in LocalStorage)
+- 🧬 Supports **encryption/decryption**
+- 🌐 Checks LocalStorage browser support internally
+- ⚜️ Allows you to store data in **multiple formats** (numbers, strings, objects, arrays, ...) with checks for cyclic references
+ - 🎀 Framework agnostic!
 ---
 
-## Install
+## ➕ Install
 
 ```shell script
 # you can install typeahead with npm
@@ -49,11 +50,11 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@2.1.1/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim@2.3.0/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
-## Usage
+## 🌱 Usage
 
 Typical usage of localstorage-slim is as follows:
 
@@ -68,38 +69,37 @@ const value = {
   d: 'superman',
   e: 1234
 }
-ls.set('key1', value); // value can be anything (object, array, string, numbers,...)
-ls.set('key2', value, { ttl: 5 }); // with optional ttl in seconds
-ls.set('key3', value, { encrypt: true }); // with optional encryption
 
-/*** Retrieve from localstorage ***/
-const result1 = ls.get('key1');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
+ls.set('key1', value); // value can be anything (object, array, string, number, ...)
+ls.get('key1');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
 
-// within 5 seconds
-const result2 = ls.get('key2');  // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
-// after 5 seconds
-const result2 = ls.get('key2');  // null
+/* with optional ttl in seconds */
+ls.set('key2', value, { ttl: 5 });
+ls.get('key2');  // within 5 secs => { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
+ls.get('key2');  // after 5 secs => null
 
-const result3 = ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
+/* with optional encryption */
+ls.set('key3', value, { encrypt: true }); // "mÆk¬k§m®À½½°¹¿¯..."
+ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
 ```
 
 ---
-## <a id="config">Configuration</a>
+## <a id="config">🔧 Configuration</a>
 
 `LocalStorage-slim` provides you a config object (**`ls.config`**) which can be modified to suit your needs. The available config parameters are as follows and all of them are completely **OPTIONAL**
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localstorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
-|`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localstorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  | false|
-|`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localstorage. Used **only** by the [`ls.get()`](#lsget) API | undefined|
+|`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localStorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
+|`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localStorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  | false|
+|`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localStorage. Used **only** by the [`ls.get()`](#lsget) API | undefined|
 |`encrypter?: (data: unknown, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
 |`decrypter?: (encryptedString: string, secret: string): unknown`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
 |`secret?: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  ||
 
 ---
 
-### <a id="encryption">Encryption/Decryption</a>
+### <a id="encryption">🧬 Encryption/Decryption</a>
 
 LocalStorage-slim allows you to encrypt the data that will be stored in your localStorage.
 
@@ -128,7 +128,7 @@ ls.config.decrypter = (encryptedString: string, secret: string): unknown => 'ori
 As seen, you can easily override the `encrypter` and `decrypter` functions with your own implementation of encryption/decryption logic to secure your data. Some examples can be found [here](https://digitalfortress.tech/js/encrypt-localstorage-data/).
 
 ```javascript
-// Then, use ls as you normally would
+// After updating the config, use ls as you normally would
 ls.set(...); // internally calls ls.config.encrypter(...);
 ls.get(...); // internally calls ls.config.decrypter(...);
 
@@ -138,11 +138,11 @@ ls.get("key", { secret: 'xyz'});
 
 ```
 
-**Note**: It is recommended that you **do not** save user passwords or credit card details in LocalStorage (whether they be encrypted or not).
+**⚠️ Note**: It is recommended that you **do not** save user passwords or credit card details in LocalStorage (whether they be encrypted or not).
 
 ---
 
-## API
+## ✨ API
 
 The Api is very similar to that of the native `LocalStorage API`.
 
@@ -154,7 +154,7 @@ The Api is very similar to that of the native `LocalStorage API`.
 
 ---
 
-#### 1. <a id="lsset">`ls.set(key, value, config = {})`</a>
+#### 🔸 1. <a id="lsset">`ls.set(key, value, config = {})`</a>
 
 Sets an item in the LocalStorage. It can accept 3 arguments
 
@@ -177,7 +177,7 @@ ls.set('key', 'value', { ttl: 5 }); // value expires after 5s (overrides global 
 ls.set('key', 'value', { encrypt: true });
 ```
 
-#### 2. <a id="lsget">`ls.get(key, config = {})`</a>
+#### 🔸 2. <a id="lsget">`ls.get(key, config = {})`</a>
 
 Retrieves the Data associated with the key stored in the LocalStorage. It accepts 2 arguments -
 
@@ -201,9 +201,9 @@ ls.config.encrypt = true;
 ls.get('key'); // returns decrypted value
 ```
 
-#### 3. <a id="lsflush">`ls.flush(force = false)`</a>
+#### 🔸 3. <a id="lsflush">`ls.flush(force = false)`</a>
 
-Flushes expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. It set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `flush(true);` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
+Flushes expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. If set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `flush(true)` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
 
 ```javascript
 // removes all expired data (i.e. ttl has expired)
@@ -212,7 +212,7 @@ ls.flush();
 ls.flush(true);
 ```
 
-#### 4. <a id="lsremove">`ls.remove(key)`</a>
+#### 🔸 4. <a id="lsremove">`ls.remove(key)`</a>
 
 Accepts the `key: string` as an argument to remove the data associated with it.
 
@@ -221,7 +221,7 @@ Accepts the `key: string` as an argument to remove the data associated with it.
 ls.remove('key'); // returns undefined if successful, false otherwise
 ```
 
-#### 5.<a id="lsclear">`ls.clear()`</a>
+#### 🔸 5.<a id="lsclear">`ls.clear()`</a>
 
 Clears the entire localstorage linked to the current domain.
 
@@ -231,22 +231,22 @@ ls.clear(); // returns undefined if successful, false otherwise
 ```
 ---
 
-### Screenshot
+### 💠 Screenshot
 
 <img src="screenshot.jpg">
 
 ---
 
-### Contribute
+### 🧑‍💻 Contribute
 
 Interested in contributing features and fixes?
 
 [Read more on contributing](./contributing.md).
 
-### Changelog
+### 📝 Changelog
 
 See the [Changelog](https://github.com/niketpathak/localstorage-slim/wiki/Changelog)
 
-### License
+### 📄 License
 
 [MIT](LICENSE) © [Digital Fortress](https://digitalfortress.tech)
