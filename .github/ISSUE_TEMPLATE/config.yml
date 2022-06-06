@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Check Discussions
+    url: https://github.com/digitalfortress-tech/localstorage-slim/discussions/
+    about: Visit our Discussions forum to view announcements, ideas, search for previous help requests, and more!
+  - name: Have a question or need help?
+    url: https://github.com/digitalfortress-tech/localstorage-slim/discussions/new
+    about: Create a new discussion
+  - name: Suggest a feature
+    url: https://github.com/digitalfortress-tech/localstorage-slim/discussions/new?category=ideas-proposals
+    about: (Please check the existing ones first) Suggest new features for Localstorage-slim!
