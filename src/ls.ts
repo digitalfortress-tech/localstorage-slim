@@ -85,15 +85,13 @@ const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}
     }
 
     // If a callback was specified store it
-    if (_conf.ttl && APX in (val as Record<string, unknown>) && _conf.cb && typeof _conf.cb === 'function') {
+    if (hasTTL && typeof _conf.cb === 'function') {
       (val as Record<string, unknown>).cb = `${_conf.cb}`;
     }
 
     storage.setItem(key, JSON.stringify(val));
 
-    if (_conf.ttl && APX in (val as Record<string, unknown>)) {
-      poll();
-    }
+    hasTTL && poll();
   } catch {
     // Sometimes stringify fails due to circular refs
     return false;
@@ -155,9 +153,6 @@ const flush = (force = false): void => {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
       return;
     }
-    // flush only if ttl was set and is expired or is forced to clear
-    // if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
-    //   storage.removeItem(key);
 
     // if ttl is set
     if (isObject(item) && APX in item) {
