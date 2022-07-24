@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/localstorage-slim.svg)](https://www.npmjs.com/package/localstorage-slim)
 [![Build Status](https://travis-ci.org/niketpathak/localstorage-slim.svg?branch=master)](https://travis-ci.org/niketpathak/localstorage-slim)
 [![code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![CDN hits](https://data.jsdelivr.com/v1/package/npm/localstorage-slim/badge?style=rounded)](https://www.jsdelivr.com/package/npm/localstorage-slim)
 ![Downloads](https://img.shields.io/npm/dt/localstorage-slim)
 ![maintained](https://img.shields.io/badge/maintained-yes-blueviolet)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
