@@ -3,13 +3,21 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "outDir": "./dist/",
-    "module": "es6",
-    "target": "es6",
+    "module": "es2020",
+    "target": "es2020",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noFallthroughCasesInSwitch": true,
     "strict": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": [
+      "es2020",
+      "esnext",
+      "dom"
+    ],
+    "types": [
+      "node"
+    ]
   }
 }
