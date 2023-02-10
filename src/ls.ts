@@ -7,14 +7,12 @@
 import { isObject, NOOP } from './helpers';
 import type { Encrypter, Decrypter, LocalStorageConfig, Dictionary } from './types';
 
-// private flags
-let hasLS: boolean; //@todo: remove
+// private flag
 let isInit = false;
 
-let store: Dictionary = {};
-
+// in memory store
 const inMemory = {
-  getItem: (key: string) => store[key],
+  getItem: (key: string) => store[key] || null,
   setItem: (key: string, value: string) => {
     store[key] = value;
   },
@@ -22,37 +20,20 @@ const inMemory = {
     store[key] = undefined;
   },
   clear: () => {
-    store = {};
+    store = {
+      __proto__: inMemory,
+    };
   },
 };
 
-const storage = localStorage || inMemory;
-
-const init = () => {
-  // @todo: deprecate supportsLS in favor of init
-  if (isInit) return;
-  flush();
-  isInit = true;
+let store: Dictionary = {
+  __proto__: inMemory,
 };
 
-const supportsLS = (): boolean => {
-  if (hasLS !== undefined) return hasLS;
-  hasLS = true;
-
-  try {
-    if (!localStorage) {
-      hasLS = false;
-    }
-  } catch {
-    // some browsers throw an error if you try to access local storage (e.g. brave browser)
-    // and some like Safari do not allow access to LS in incognito mode
-    hasLS = false;
-  }
-
-  // flush once on init
+const init = () => {
+  if (isInit) return;
+  isInit = true;
   flush();
-
-  return hasLS;
 };
 
 // Apex
@@ -61,7 +42,7 @@ const APX = String.fromCharCode(0);
 // tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
   encrypt
-    ? [...((JSON.stringify(str) as unknown) as string[])]
+    ? [...(JSON.stringify(str) as unknown as string[])]
       .map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number)))
       .join('')
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
@@ -76,10 +57,24 @@ const config: LocalStorageConfig = {
   encrypter: obfus,
   decrypter,
   secret: 75,
+  storage: localStorage || sessionStorage,
 };
 
+Object.seal(config);
+
+const storage: Storage = (() => {
+  let s = config.storage;
+  try {
+    (s as Storage).getItem('');
+  } catch {
+    // Browsers like iOS/Safari throw an error when you try to access LS in incognito mode
+    s = store as Storage;
+  }
+  return s;
+})() as Storage;
+
 const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
-  if (!supportsLS()) return false;
+  init();
 
   const _conf = {
     ...config,
@@ -104,7 +99,7 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
       }
     }
 
-    localStorage.setItem(key, JSON.stringify(val));
+    storage.setItem(key, JSON.stringify(val));
   } catch {
     // Sometimes stringify fails due to circular refs
     return false;
@@ -112,9 +107,9 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
 };
 
 const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T | null => {
-  if (!supportsLS()) return null;
+  init();
 
-  const str = localStorage.getItem(key);
+  const str = storage.getItem(key);
 
   if (!str) {
     return null;
@@ -149,17 +144,17 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
   }
 
   if (Date.now() > item.ttl) {
-    localStorage.removeItem(key);
+    storage.removeItem(key);
     return null;
   }
 
   return item[APX];
 };
 
-const flush = (force = false): false | void => {
-  if (!supportsLS()) return false;
-  Object.keys(localStorage).forEach((key) => {
-    const str = localStorage.getItem(key);
+const flush = (force = false): void => {
+  init();
+  for (const key of Object.keys(storage)) {
+    const str = storage.getItem(key);
     if (!str) return; // continue iteration
     let item;
     try {
@@ -170,19 +165,19 @@ const flush = (force = false): false | void => {
     }
     // flush only if ttl was set and is/is not expired
     if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
-      localStorage.removeItem(key);
+      storage.removeItem(key);
     }
-  });
+  }
 };
 
-const remove = (key: string): undefined | false => {
-  if (!supportsLS()) return false;
-  localStorage.removeItem(key);
+const remove = (key: string): void => {
+  init();
+  storage.removeItem(key);
 };
 
-const clear = (): undefined | false => {
-  if (!supportsLS()) return false;
-  localStorage.clear();
+const clear = (): void => {
+  init();
+  storage.clear();
 };
 
 export default {
