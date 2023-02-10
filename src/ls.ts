@@ -5,30 +5,10 @@
  */
 
 import { isObject, NOOP } from './helpers';
-import type { Encrypter, Decrypter, LocalStorageConfig, Dictionary } from './types';
+import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
 
 // private flag
 let isInit = false;
-
-// in memory store
-const inMemory = {
-  getItem: (key: string) => store[key] || null,
-  setItem: (key: string, value: string) => {
-    store[key] = value;
-  },
-  removeItem: (key: string) => {
-    store[key] = undefined;
-  },
-  clear: () => {
-    store = {
-      __proto__: inMemory,
-    };
-  },
-};
-
-let store: Dictionary = {
-  __proto__: inMemory,
-};
 
 const init = () => {
   if (isInit) return;
@@ -57,21 +37,12 @@ const config: LocalStorageConfig = {
   encrypter: obfus,
   decrypter,
   secret: 75,
-  storage: localStorage || sessionStorage,
+  storage: undefined,
 };
 
 Object.seal(config);
 
-const storage: Storage = (() => {
-  let s = config.storage;
-  try {
-    (s as Storage).getItem('');
-  } catch {
-    // Browsers like iOS/Safari throw an error when you try to access LS in incognito mode
-    s = store as Storage;
-  }
-  return s;
-})() as Storage;
+const storage: Storage = config.storage || localStorage;
 
 const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
   init();
