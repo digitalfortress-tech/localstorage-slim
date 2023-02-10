@@ -5,10 +5,35 @@
  */
 
 import { isObject, NOOP } from './helpers';
-import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
+import type { Encrypter, Decrypter, LocalStorageConfig, Dictionary } from './types';
 
 // private flags
-let hasLS: boolean;
+let hasLS: boolean; //@todo: remove
+let isInit = false;
+
+let store: Dictionary = {};
+
+const inMemory = {
+  getItem: (key: string) => store[key],
+  setItem: (key: string, value: string) => {
+    store[key] = value;
+  },
+  removeItem: (key: string) => {
+    store[key] = undefined;
+  },
+  clear: () => {
+    store = {};
+  },
+};
+
+const storage = localStorage || inMemory;
+
+const init = () => {
+  // @todo: deprecate supportsLS in favor of init
+  if (isInit) return;
+  flush();
+  isInit = true;
+};
 
 const supportsLS = (): boolean => {
   if (hasLS !== undefined) return hasLS;

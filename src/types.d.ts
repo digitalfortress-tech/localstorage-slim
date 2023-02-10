@@ -1,6 +1,8 @@
 export type Encrypter = (...args: unknown[]) => string;
 export type Decrypter = (...args: unknown[]) => string;
 
+export type Dictionary<T = unknown> = Record<string, T>;
+
 export interface LocalStorageConfig {
   ttl?: number | null;
   encrypt?: boolean;
