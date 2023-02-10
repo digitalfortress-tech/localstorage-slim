@@ -15,7 +15,7 @@ An ultra slim localstorage wrapper with optional support for **ttl** and **encry
 **🌟 Highlights 🌟**
 
 - 📦 A localStorage wrapper with **0 DEPENDENCIES** in pure JS (Typescript)!
-- 🔥 A super light-weight library [![<1kB minzipped](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
+- 🔥 A super light-weight library [![~1kB minzipped](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
 - ⏰ Supports **TTL** (i.e. expiry of data in LocalStorage)
 - 🧬 Supports **encryption/decryption**
 - 🌐 Checks LocalStorage browser support internally
