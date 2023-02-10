@@ -18,7 +18,7 @@ const supportsLS = (): boolean => {
     if (!localStorage) {
       hasLS = false;
     }
-  } catch (e) {
+  } catch {
     // some browsers throw an error if you try to access local storage (e.g. brave browser)
     // and some like Safari do not allow access to LS in incognito mode
     hasLS = false;
@@ -80,7 +80,7 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
     }
 
     localStorage.setItem(key, JSON.stringify(val));
-  } catch (e) {
+  } catch {
     // Sometimes stringify fails due to circular refs
     return false;
   }
@@ -112,7 +112,7 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
       } else {
         item = (_conf.decrypter || NOOP)(item, _conf.secret) as string;
       }
-    } catch (e) {
+    } catch {
       // Either the secret is incorrect or there was a parsing error
       // do nothing [i.e. return the encrypted/unparsed value]
     }
@@ -139,7 +139,7 @@ const flush = (force = false): false | void => {
     let item;
     try {
       item = JSON.parse(str);
-    } catch (e) {
+    } catch {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
       return;
     }
