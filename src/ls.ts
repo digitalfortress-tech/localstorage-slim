@@ -5,7 +5,7 @@
  */
 
 import { isObject, NOOP } from './helpers';
-import type { Encrypter, Decrypter, LocalStorageConfig } from './types';
+import type { Encrypter, Decrypter, StorageConfig } from './types';
 
 // private flag
 let isInit = false;
@@ -32,7 +32,7 @@ const decrypter: Decrypter = (str, key) => {
   return obfus(str, key, false);
 };
 
-const config: LocalStorageConfig = {
+const config: StorageConfig = {
   ttl: null,
   encrypt: false,
   encrypter: obfus,
@@ -45,7 +45,7 @@ Object.seal(config);
 
 let storage: Storage;
 
-const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
+const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}): void | boolean => {
   init();
 
   const _conf = {
@@ -78,7 +78,7 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
   }
 };
 
-const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T | null => {
+const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | null => {
   init();
 
   const str = storage.getItem(key);
