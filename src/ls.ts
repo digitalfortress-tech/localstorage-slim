@@ -5,7 +5,7 @@
  */
 
 import { isObject, NOOP } from './helpers';
-import type { Encrypter, Decrypter, StorageConfig } from './types';
+import type { Encrypter, Decrypter, StorageConfig, Dictionary } from './types';
 
 // private flag
 let isInit = false;
@@ -14,6 +14,37 @@ const init = () => {
   if (isInit) return;
   isInit = true;
   storage = config.storage || localStorage;
+  try {
+    // sometimes localStorage/sessionStorage is blocked due to security policy. For example, within JS fiddle in incognito mode
+    storage.getItem('');
+  } catch {
+    storage = (() => {
+      // @deprecated @todo: remove in v3. Allow enduser to implement it themselves if need be
+      // because as of Feb 2023 ALL webbrowsers support LS (even in incognito mode)
+      // thrown error is generally due to a security policy (or exceeding storage capacity)
+      const inMemoryStore = {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => {
+          store[key] = value;
+        },
+        removeItem: (key: string) => {
+          store[key] = undefined;
+        },
+        clear: () => {
+          store = {
+            __proto__: inMemoryStore,
+          };
+        },
+      };
+
+      let store: Dictionary = {
+        __proto__: inMemoryStore,
+      };
+
+      return store as Storage;
+    })();
+  }
+
   flush();
 };
 
@@ -23,7 +54,7 @@ const APX = String.fromCharCode(0);
 // tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
   encrypt
-    ? [...((JSON.stringify(str) as unknown) as string[])]
+    ? [...(JSON.stringify(str) as unknown as string[])]
       .map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number)))
       .join('')
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));

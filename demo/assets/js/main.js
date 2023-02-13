@@ -48,8 +48,10 @@ let test;
 // eslint-disable-next-line no-undef
 if (dev) {
   // window.ls.config.encrypt = true;
-  // window.ls.config.storage = sessionStorage;
-  window.ls.config.ttl = 10;
+  window.ls.config.storage = () => {
+    return false;
+  };
+  window.ls.config.ttl = 30;
   test = ['test1-description', { true: 343 }, 2];
   window.ls.set('test1', test);
 }
