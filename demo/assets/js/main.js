@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : i > this.previousTop &&
               (o('#mainNav').removeClass('is-visible'),
               s < i && !o('#mainNav').hasClass('is-fixed') && o('#mainNav').addClass('is-fixed')),
-            (this.previousTop = i);
+          (this.previousTop = i);
         }
       );
     }
@@ -47,6 +47,9 @@ let test;
 
 // eslint-disable-next-line no-undef
 if (dev) {
-  // ls.config.encrypt = true;
-  test = ['ff', { true: 343 }, 2];
+  // window.ls.config.encrypt = true;
+  // window.ls.config.storage = sessionStorage;
+  window.ls.config.ttl = 10;
+  test = ['test1-description', { true: 343 }, 2];
+  window.ls.set('test1', test);
 }
