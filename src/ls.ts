@@ -13,6 +13,7 @@ let isInit = false;
 const init = () => {
   if (isInit) return;
   isInit = true;
+  storage = config.storage || localStorage;
   flush();
 };
 
@@ -22,7 +23,7 @@ const APX = String.fromCharCode(0);
 // tiny obsfuscator
 const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
   encrypt
-    ? [...(JSON.stringify(str) as unknown as string[])]
+    ? [...((JSON.stringify(str) as unknown) as string[])]
       .map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number)))
       .join('')
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
@@ -42,7 +43,7 @@ const config: LocalStorageConfig = {
 
 Object.seal(config);
 
-const storage: Storage = config.storage || localStorage;
+let storage: Storage;
 
 const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
   init();
