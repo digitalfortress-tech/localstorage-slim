@@ -4,11 +4,12 @@
  * MIT License
  */
 
-import { isObject, NOOP } from './helpers';
-import type { Encrypter, Decrypter, StorageConfig, Dictionary } from './types';
+import { isObject, NOOP, memoryStore } from './helpers';
+import type { Encrypter, Decrypter, StorageConfig } from './types';
 
 // private flag
 let isInit = false;
+let storage: Storage;
 
 const init = () => {
   if (isInit) return;
@@ -18,31 +19,7 @@ const init = () => {
     // sometimes localStorage/sessionStorage is blocked due to security policy. For example, within JS fiddle in incognito mode
     storage.getItem('');
   } catch {
-    storage = (() => {
-      // @deprecated @todo: remove in v3. Allow enduser to implement it themselves if need be
-      // because as of Feb 2023 ALL webbrowsers support LS (even in incognito mode)
-      // thrown error is generally due to a security policy (or exceeding storage capacity)
-      const inMemoryStore = {
-        getItem: (key: string) => store[key] || null,
-        setItem: (key: string, value: string) => {
-          store[key] = value;
-        },
-        removeItem: (key: string) => {
-          store[key] = undefined;
-        },
-        clear: () => {
-          store = {
-            __proto__: inMemoryStore,
-          };
-        },
-      };
-
-      let store: Dictionary = {
-        __proto__: inMemoryStore,
-      };
-
-      return store as Storage;
-    })();
+    storage = memoryStore();
   }
 
   flush();
@@ -73,8 +50,6 @@ const config: StorageConfig = {
 };
 
 Object.seal(config);
-
-let storage: Storage;
 
 const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}): void | boolean => {
   init();
