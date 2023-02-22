@@ -54,4 +54,7 @@ if (dev) {
   window.ls.config.ttl = 30;
   test = ['test1-description', { true: 343 }, 2];
   window.ls.set('test1', test);
+  window.ls.set('test2', test, { encrypt: true });
+  window.ls.set('test3', test, { ttl: 50 });
+  window.ls.set('test4', test, { ttl: 10, encrypt: true });
 }
