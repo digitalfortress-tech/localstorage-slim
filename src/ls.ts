@@ -7,7 +7,7 @@
 import { isObject, NOOP, memoryStore } from './helpers';
 import type { Encrypter, Decrypter, StorageConfig } from './types';
 
-// private flag
+// private fields
 let isInit = false;
 let storage: Storage;
 
@@ -28,8 +28,8 @@ const init = () => {
 // Apex
 const APX = String.fromCharCode(0);
 
-// tiny obsfuscator
-const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
+// tiny obsfuscator as a default implementation
+const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) =>
   encrypt
     ? [...(JSON.stringify(str) as unknown as string[])]
       .map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number)))
@@ -37,13 +37,13 @@ const obfus: Encrypter | Decrypter = (str, key, encrypt = true) =>
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
 
 const decrypter: Decrypter = (str, key) => {
-  return obfus(str, key, false);
+  return encrypter(str, key, false);
 };
 
 const config: StorageConfig = {
   ttl: null,
   encrypt: false,
-  encrypter: obfus,
+  encrypter,
   decrypter,
   secret: 75,
   storage: undefined,
