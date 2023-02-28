@@ -100,20 +100,23 @@ const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | nul
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
   };
 
-  let item = JSON.parse(str);
-  const hasTTL = isObject(item) && APX in item;
+  let item;
+  let hasTTL;
 
-  if (_conf.decrypt || _conf.encrypt) {
-    try {
+  try {
+    item = JSON.parse(str);
+    hasTTL = isObject(item) && APX in item;
+
+    if (_conf.decrypt || _conf.encrypt) {
       if (hasTTL) {
         item[APX] = (_conf.decrypter || NOOP)(item[APX], _conf.secret) as string;
       } else {
         item = (_conf.decrypter || NOOP)(item, _conf.secret) as string;
       }
-    } catch {
-      // Either the secret is incorrect or there was a parsing error
-      // do nothing [i.e. return the encrypted/unparsed value]
     }
+  } catch {
+    // Either the secret is incorrect or there was a parsing error
+    // do nothing [i.e. return the encrypted/unparsed value]
   }
 
   // if not using ttl, return immediately

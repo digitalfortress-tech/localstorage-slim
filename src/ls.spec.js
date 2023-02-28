@@ -46,6 +46,11 @@ describe('LS wrapper', () => {
     expect(ls.get('some_key')).toBe(null);
   });
 
+  it('Calling get() on a key which is not set by ls-slim should return raw value', () => {
+    localStorage.setItem('key_external', 'value_external'); // not stringified
+    expect(ls.get('key_external')).toBe(undefined);
+  });
+
   it('Calling set() with/without ttl should return undefined', () => {
     expect(ls.set('some_key', 'some_value')).toBe(undefined);
     expect(ls.set('some_key1', 'some_value1', { ttl: 3 })).toBe(undefined);
