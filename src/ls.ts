@@ -36,9 +36,7 @@ const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) =>
       .join('')
     : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
 
-const decrypter: Decrypter = (str, key) => {
-  return encrypter(str, key, false);
-};
+const decrypter: Decrypter = (str, key) => encrypter(str, key, false);
 
 const config: StorageConfig = {
   ttl: null,
@@ -121,7 +119,7 @@ const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | nul
 
   // if not using ttl, return immediately
   if (!hasTTL) {
-    return item;
+    return item || str;
   }
 
   if (Date.now() > item.ttl) {
