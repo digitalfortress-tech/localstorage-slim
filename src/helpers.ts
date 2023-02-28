@@ -11,9 +11,9 @@ export const isObject = (item: any): boolean => {
 /** Specific to local-storage */
 
 export const memoryStore = (): Storage => {
-  // @deprecated @todo: remove in v3. Allow enduser to implement it themselves if need be
+  // @deprecated @todo: remove usage in v3. Export it and allow enduser to implement it themselves if need be
   // because as of Feb 2023 ALL webbrowsers support LS (even in incognito mode)
-  // thrown error is generally due to a security policy (or exceeding storage capacity)
+  // thrown error is generally due to a security policy (or perhaps exceeding storage capacity)
   const mStore = {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => {
