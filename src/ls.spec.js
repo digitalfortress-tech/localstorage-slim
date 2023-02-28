@@ -48,7 +48,11 @@ describe('LS wrapper', () => {
 
   it('Calling get() on a key which is not set by ls-slim should return raw value', () => {
     localStorage.setItem('key_external', 'value_external'); // not stringified
-    expect(ls.get('key_external')).toBe(undefined);
+    expect(ls.get('key_external')).toBe('value_external');
+
+    // stringified but not encrypted should return raw value even if decryption is enabled
+    localStorage.setItem('key_ext', JSON.stringify('value_external'));
+    expect(ls.get('key_ext', { decrypt: true })).toBe('value_external');
   });
 
   it('Calling set() with/without ttl should return undefined', () => {
