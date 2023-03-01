@@ -131,6 +131,42 @@ describe('LS wrapper', () => {
     expect(ls.get('key3')).toBe(null);
     expect(ls.get('key4')).toBe(null);
   });
+
+  it('should not flush items set by external libs', async () => {
+    ls.set('key1', 'value1', { ttl: 0.2 });
+    localStorage.setItem('flush_test1', 'value_f1'); // not stringified
+    localStorage.setItem('flush_test2', 45); // not stringified
+    localStorage.setItem('flush_test3', ''); // not stringified
+    localStorage.setItem('flush_test4', null); // not stringified
+    ls.set('flush_test5', ''); // stringified
+    ls.set('flush_test6', null); // stringified
+    ls.set('flush_test7', undefined); // stringified
+
+    await new Promise((res) => setTimeout(res, 250));
+    ls.flush();
+    expect(localStorage.getItem('key1')).toBe(null);
+
+    expect(localStorage.getItem('flush_test1')).toBe('value_f1');
+    expect(ls.get('flush_test1')).toBe('value_f1');
+
+    expect(localStorage.getItem('flush_test2')).toBe('45');
+    expect(ls.get('flush_test2')).toBe(45);
+
+    expect(localStorage.getItem('flush_test3')).toBe('');
+    expect(ls.get('flush_test3')).toBe('');
+
+    expect(localStorage.getItem('flush_test4')).toBe('null');
+    expect(ls.get('flush_test4')).toBe(null);
+
+    expect(localStorage.getItem('flush_test5')).toBe('""');
+    expect(ls.get('flush_test5')).toBe('');
+
+    expect(localStorage.getItem('flush_test6')).toBe('null');
+    expect(ls.get('flush_test6')).toBe(null);
+
+    expect(localStorage.getItem('flush_test7')).toBe('undefined');
+    expect(ls.get('flush_test7')).toBe('undefined');
+  });
 });
 
 describe('TTL', () => {

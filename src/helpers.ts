@@ -2,10 +2,11 @@ import type { Dictionary } from './types';
 
 export const NOOP = (...args: unknown[]): unknown => undefined;
 
+// @deprecated @todo: remove in v3.
 export const escapeRegExp = (text: string): string => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 
 export const isObject = (item: any): boolean => {
-  return item !== null && item.constructor.name === 'Object';
+  return item !== null && item?.constructor.name === 'Object';
 };
 
 /** Specific to local-storage */
