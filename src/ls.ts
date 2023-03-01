@@ -87,10 +87,6 @@ const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | nul
 
   const str = storage.getItem(key);
 
-  if (!str) {
-    return null;
-  }
-
   const _conf = {
     ...config,
     ...localConfig,
@@ -102,7 +98,7 @@ const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | nul
   let hasTTL;
 
   try {
-    item = JSON.parse(str);
+    item = JSON.parse(str || '');
     hasTTL = isObject(item) && APX in item;
 
     if (_conf.decrypt || _conf.encrypt) {
@@ -119,7 +115,7 @@ const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | nul
 
   // if not using ttl, return immediately
   if (!hasTTL) {
-    return item || str;
+    return item !== undefined ? item : str;
   }
 
   if (Date.now() > item.ttl) {
@@ -134,15 +130,14 @@ const flush = (force = false): void => {
   init();
   for (const key of Object.keys(storage)) {
     const str = storage.getItem(key);
-    if (!str) return; // continue iteration
     let item;
     try {
-      item = JSON.parse(str);
+      item = JSON.parse(str || '');
     } catch {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
       return;
     }
-    // flush only if ttl was set and is/is not expired
+    // flush only if ttl was set and is expired or is forced to clear
     if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
       storage.removeItem(key);
     }
