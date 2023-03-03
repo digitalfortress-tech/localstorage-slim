@@ -8,7 +8,7 @@ import { isObject, NOOP, memoryStore } from './helpers';
 import type { Encrypter, Decrypter, StorageConfig } from './types';
 
 // private fields
-let isInit = false;
+let isInit: boolean;
 let storage: Storage;
 
 const init = () => {
