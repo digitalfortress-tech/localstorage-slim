@@ -18,9 +18,10 @@ An ultra slim localstorage wrapper with optional support for **ttl** and **encry
 - 🔥 A super light-weight library [![~1kB minzipped](https://badgen.net/bundlephobia/minzip/localstorage-slim)](https://bundlephobia.com/package/localstorage-slim)
 - ⏰ Supports **TTL** (i.e. expiry of data in LocalStorage)
 - 🧬 Supports **encryption/decryption**
-- 🌐 Checks LocalStorage browser support internally
-- ⚜️ Allows you to store data in **multiple formats** (numbers, strings, objects, arrays, ...) with checks for cyclic references
- - 🎀 Framework agnostic!
+- ⚜️ Store data in **multiple formats** (numbers, strings, objects, arrays, ...) with checks for cyclic references
+- 🌐 Works everywhere (falls back to an in-memory store when localStorage is unavailable/blocked due to a security policy, for example: within incognito mode)
+- ⚙️ Configurable to use with **sessionStorage** or even a custom store that implements the [Storage interface](https://developer.mozilla.org/en-US/docs/Web/API/Storage).
+- 🎀 Framework agnostic!
 ---
 
 ## ➕ Install
@@ -91,12 +92,13 @@ ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
-|`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localStorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|null|
-|`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localStorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  | false|
-|`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localStorage. Used **only** by the [`ls.get()`](#lsget) API | undefined|
-|`encrypter?: (data: unknown, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
-|`decrypter?: (encryptedString: string, secret: string): unknown`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
+|`ttl?: number\|null` |Allows you to set a global TTL(time to live) **in seconds** which will be used for every item stored in the localStorage. **Global `ttl`** can be overriden with the `ls.set()/ls.get()` API.|`null`|
+|`encrypt?: boolean` |Allows you to setup global encryption of the data stored in localStorage [Details](#encryption). It can be overriden with the `ls.set()/ls.get()` API  |`false`|
+|`decrypt?: boolean` |Allows you to decrypt encrypted data stored in localStorage. Used **only** by the [`ls.get()`](#lsget) API |`undefined`|
+|`encrypter?: (data: unknown, secret: string): string` |The encryption function to be used. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
+|`decrypter?: (encryptedString: string, secret: string): unknown`|A decryption function to be used. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
 |`secret?: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  ||
+|`storage?: Storage` |Allows you to define the Storage to use: `localStorage`, `sessionStorage` or even a custom store that implements the [Storage interface](https://developer.mozilla.org/en-US/docs/Web/API/Storage). By default, `localStorage` is used and if localStorage is unavailable, then a fallback in-memory store is used |`localStorage`|
 
 ---
 
@@ -129,17 +131,37 @@ ls.config.decrypter = (encryptedString: string, secret: string): unknown => 'ori
 As seen, you can easily override the `encrypter` and `decrypter` functions with your own implementation of encryption/decryption logic to secure your data. Some examples can be found [here](https://digitalfortress.tech/js/encrypt-localstorage-data/).
 
 ```javascript
-// After updating the config, use ls as you normally would
+/* After updating the config, use ls as you normally would */
 ls.set(...); // internally calls ls.config.encrypter(...);
 ls.get(...); // internally calls ls.config.decrypter(...);
 
-// you can encrypt a particular LS item by providing a different secret as well.
+/* you can encrypt a particular LS item by providing a different secret as well. */
 ls.set("key", "value", { secret: 'xyz'});
 ls.get("key", { secret: 'xyz'});
-
 ```
 
 **⚠️ Note**: It is recommended that you **do not** save user passwords or credit card details in LocalStorage (whether they be encrypted or not).
+
+---
+
+## ⚙️ Using sessionStorage/custom store
+
+By configuring the `storage` config option, you can easily use another storage instead of the default `localStorage`.
+
+```js
+/* use sessionStorage */
+ls.config.storage = sessionStorage;
+
+/* OR a custom store/storage via an IIFE */
+ls.config.storage = (() => {
+  const store = {
+    // your storage's implementation...
+  };
+
+  return store;
+})()
+```
+**Note**: If you use custom storage, it must implement the [Storage interface](https://developer.mozilla.org/en-US/docs/Web/API/Storage).
 
 ---
 
@@ -238,6 +260,11 @@ ls.clear(); // returns undefined if successful, false otherwise
 
 ---
 
+### ❕ Gotchas
+
+When localStorage is not supported by a browser, we fallback to `MemoryStorage`. For websites that don't do full page loads, like SPA's, this is a perfect fallback. But for MPA's, though page crashes get prevented, data is not persisted between page loads.
+
+---
 ### 🧑‍💻 Contribute
 
 Interested in contributing features and fixes?

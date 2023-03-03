@@ -275,7 +275,7 @@ describe('TTL', () => {
     expect(ls.get('some_key')).toBe('some_value');
   });
 
-  it('When global ttl is enabled, Disable ttl for only a particular item', async () => {
+  it('When global ttl is enabled, Disable ttl for a particular item alone', async () => {
     ls.config.ttl = 0.2;
     ls.set('some_key', 'some_value', { ttl: null });
     ls.set('some_array', testArr, { ttl: null });
@@ -318,7 +318,7 @@ describe('Local encryption', () => {
     expect(ls.get('myArray')).toStrictEqual(testArr);
   });
 
-  it('should encrypt only a particular field', () => {
+  it('should encrypt a particular field alone', () => {
     ls.config.encrypt = false;
     ls.set('some_key', 'value', { encrypt: true });
     expect(localStorage.getItem('some_key')).toBe('"mÁ¬·À°m"');
