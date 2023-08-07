@@ -82,6 +82,9 @@ ls.get('key2');  // after 5 secs => null
 /* with optional encryption */
 ls.set('key3', value, { encrypt: true }); // "mÆk¬k§m®À½½°¹¿¯..."
 ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d: 'superman', e: 1234 }
+
+/* with custom key prefix */
+ls.set('key4', value, { prefix: 'ls_' });
 ```
 
 ---
@@ -97,7 +100,7 @@ ls.get('key3', { decrypt: true }); // { a: "currentdate", b: "null", c: false, d
 |`encrypter?: (data: unknown, secret: string): string` |An encryption function whose signature can be seen on the left. A default implementation only obfuscates the value. This function can be overriden with the `ls.set()/ls.get()` API.  |Obfuscation|
 |`decrypter?: (encryptedString: string, secret: string): unknown`|A decryption function whose signature can be seen on the left. A default implementation only performs deobfuscation. This function can be overriden with the `ls.set()/ls.get()` API.  |deobfuscation|
 |`secret?: unknown` |Allows you to set a secret key that will be passed to the encrypter/decrypter functions as a parameter. The default implementation accepts a number. **Global `secret`** can be overriden with the `ls.set()/ls.get()` API.  ||
-
+|`prefix?: string\|null` |Allows to set a global key prefix value to encapsulate all localStorage items created using this library and having the possibility of flushing them without affecting the rest of the localStorage. **Global `prefix`** can be overridden with the `ls.set()/ls.get()/ls.remove()/ls.flush()/ls.clear()` API.|
 ---
 
 ### <a id="encryption">🧬 Encryption/Decryption</a>
@@ -202,7 +205,7 @@ ls.config.encrypt = true;
 ls.get('key'); // returns decrypted value
 ```
 
-#### 🔸 3. <a id="lsflush">`ls.flush(force = false)`</a>
+#### 🔸 3. <a id="lsflush">`ls.flush(force = false, config = {})`</a>
 
 Flushes expired items in the localStorage. This function is called once automatically on initialization. It can accept an **optional** argument `force: boolean` that defaults to `false`. If set to `true`, it force-flushes all items including the ones that haven't expired yet. Note that doing `flush(true)` only affects items that were due to expire sometime in future (i.e. they had a TTL set on them). To remove data, whether or not it has a TTL, use `remove()` or `clear()`.
 
@@ -213,7 +216,7 @@ ls.flush();
 ls.flush(true);
 ```
 
-#### 🔸 4. <a id="lsremove">`ls.remove(key)`</a>
+#### 🔸 4. <a id="lsremove">`ls.remove(key, config = {})`</a>
 
 Accepts the `key: string` as an argument to remove the data associated with it.
 
@@ -222,7 +225,7 @@ Accepts the `key: string` as an argument to remove the data associated with it.
 ls.remove('key'); // returns undefined if successful, false otherwise
 ```
 
-#### 🔸 5.<a id="lsclear">`ls.clear()`</a>
+#### 🔸 5.<a id="lsclear">`ls.clear(config = {})`</a>
 
 Clears the entire localstorage linked to the current domain.
 

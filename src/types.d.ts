@@ -8,4 +8,5 @@ export interface LocalStorageConfig {
   encrypter?: Encrypter;
   decrypter?: Decrypter;
   secret?: unknown;
+  prefix?: string | null;
 }

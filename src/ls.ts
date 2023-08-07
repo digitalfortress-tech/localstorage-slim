@@ -51,6 +51,7 @@ const config: LocalStorageConfig = {
   encrypter: obfus,
   decrypter,
   secret: 75,
+  prefix: null,
 };
 
 const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig = {}): void | boolean => {
@@ -61,6 +62,7 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
     ...localConfig,
     encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
+    prefix: localConfig.prefix === null ? null : localConfig.prefix || config.prefix,
   };
 
   try {
@@ -79,6 +81,11 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
       }
     }
 
+    if (_conf.prefix) {
+      // Enclose key in prefix
+      key = `${_conf.prefix}${key}`;
+    }
+
     localStorage.setItem(key, JSON.stringify(val));
   } catch {
     // Sometimes stringify fails due to circular refs
@@ -89,18 +96,24 @@ const set = <T = unknown>(key: string, value: T, localConfig: LocalStorageConfig
 const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T | null => {
   if (!supportsLS()) return null;
 
-  const str = localStorage.getItem(key);
-
-  if (!str) {
-    return null;
-  }
-
   const _conf = {
     ...config,
     ...localConfig,
     encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
     ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
+    prefix: localConfig.prefix === null ? null : localConfig.prefix || config.prefix,
   };
+
+  if (_conf.prefix) {
+    // Enclose key in prefix
+    key = `${_conf.prefix}${key}`;
+  }
+
+  const str = localStorage.getItem(key);
+
+  if (!str) {
+    return null;
+  }
 
   let item = JSON.parse(str);
   const hasTTL = isObject(item) && APX in item;
@@ -131,9 +144,12 @@ const get = <T = unknown>(key: string, localConfig: LocalStorageConfig = {}): T 
   return item[APX];
 };
 
-const flush = (force = false): false | void => {
+const flush = (force = false, localConfig: LocalStorageConfig = {}): false | void => {
   if (!supportsLS()) return false;
+  
+  const prefix = localConfig.prefix === null ? null : localConfig.prefix || config.prefix;
   Object.keys(localStorage).forEach((key) => {
+    if (prefix && !key.startsWith(prefix)) return; // continue iteration
     const str = localStorage.getItem(key);
     if (!str) return; // continue iteration
     let item;
@@ -144,20 +160,36 @@ const flush = (force = false): false | void => {
       return;
     }
     // flush only if ttl was set and is/is not expired
-    if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
+    if ((isObject(item) && APX in item) && (Date.now() > item.ttl || force)) {
       localStorage.removeItem(key);
     }
   });
 };
 
-const remove = (key: string): undefined | false => {
+const remove = (key: string, localConfig: LocalStorageConfig = {}): undefined | false => {
   if (!supportsLS()) return false;
+  const prefix = localConfig.prefix === null ? null : localConfig.prefix || config.prefix;
+  if (prefix) {
+    // Enclose key in prefix
+    key = `${prefix}${key}`;
+  }
   localStorage.removeItem(key);
 };
 
-const clear = (): undefined | false => {
+const clear = (localConfig: LocalStorageConfig = {}): undefined | false => {
   if (!supportsLS()) return false;
-  localStorage.clear();
+
+  const prefix = localConfig.prefix === null ? null : localConfig.prefix || config.prefix;
+  if (prefix) {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith(`${prefix}`)) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
+  else {
+    localStorage.clear();
+  }
 };
 
 export default {

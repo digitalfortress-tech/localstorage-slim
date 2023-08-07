@@ -575,3 +575,45 @@ describe('Crypto JS', () => {
     ls.config.decrypter = decrypt;
   });
 });
+
+describe('Prefix', () => {
+  beforeEach(() => {
+    global.localStorage.clear();
+    ls.config.ttl = null;
+    ls.config.encrypt = false;
+    ls.config.secret = null;
+    ls.config.prefix = 'ls_';
+  });
+  
+  it('should set(), get() and clear() correctly with prefix', async () => {
+    ls.set('key1', 'value1', { prefix: 'test1_' }); // should be under 
+    ls.set('key2', 'value2', { prefix: null }); // should be under key2
+    ls.set('key3', 'value3'); // Should be under ls_key3
+    
+    // Validate the values
+    expect(ls.get('key1')).toBe(null);
+    expect(ls.get('key1', { prefix: 'test1_' })).toBe('value1');
+    expect(ls.get('key2')).toBe(null);
+    expect(ls.get('key2', { prefix: null })).toBe('value2');
+    expect(ls.get('key3')).toBe('value3');
+    expect(ls.get('key3', { prefix: null })).toBe(null);
+    expect(localStorage.getItem('test1_key1')).toBe('"value1"');
+    expect(localStorage.getItem('key2')).toBe('"value2"');
+    expect(localStorage.getItem('ls_key3')).toBe('"value3"');
+
+    // Clear only the default _ls prefix
+    ls.clear(true);
+    expect(ls.get('key1', { prefix: 'test1_' })).toBe('value1');
+    expect(ls.get('key2', { prefix: null })).toBe('value2');
+    expect(ls.get('key3')).toBe(null);
+
+    // Clear only the test1_ prefix
+    ls.clear(true, { prefix: 'test1_' });
+    expect(ls.get('key1', { prefix: 'test1_' })).toBe(null);
+    expect(ls.get('key2', { prefix: null })).toBe('value2');
+
+    // Clear null prefix
+    ls.clear(true, { prefix: null });
+    expect(ls.get('key2', { prefix: null })).toBe(null);
+  });
+});
