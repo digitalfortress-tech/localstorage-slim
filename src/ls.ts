@@ -14,9 +14,9 @@ let storage: Storage;
 const init = () => {
   if (isInit) return;
   isInit = true;
-  storage = config.storage || localStorage;
   try {
     // sometimes localStorage/sessionStorage is blocked due to security policy. For example, within JS fiddle in incognito mode
+    storage = config.storage || localStorage;
     storage.getItem('');
   } catch {
     storage = memoryStore();
