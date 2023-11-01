@@ -135,7 +135,7 @@ const flush = (force = false): void => {
       item = JSON.parse(str || '');
     } catch {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
-      return;
+      continue;
     }
     // flush only if ttl was set and is expired or is forced to clear
     if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
