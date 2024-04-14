@@ -49,7 +49,7 @@ const config: StorageConfig = {
 
 Object.seal(config);
 
-const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}): void | boolean => {
+const set = <T = unknown>(key: string, value: T, localConfig: Omit<StorageConfig, 'storage'> = {}): void | boolean => {
   init();
 
   const _conf = {
@@ -82,7 +82,7 @@ const set = <T = unknown>(key: string, value: T, localConfig: StorageConfig = {}
   }
 };
 
-const get = <T = unknown>(key: string, localConfig: StorageConfig = {}): T | null => {
+const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage'> = {}): T | null => {
   init();
 
   const str = storage.getItem(key);
