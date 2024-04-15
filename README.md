@@ -183,7 +183,7 @@ Sets an item in the LocalStorage. It can accept 3 arguments
 
 1. `key: string` **[Required]** - The key with which the value should be associated
 2. `value: string|Date|Number|Object|Boolean|Null` **[Required]** - The value to be stored
-3. `config: Config` **[Optional]** - This argument accepts the same properties as the [global config](#config) object. Defaults to an empty object
+3. `config: Config` **[Optional]** - This argument accepts the same properties (except `storage` property) as the [global config](#config) object. Defaults to an empty object
 
 Returns `false` if there was an error, else returns `undefined`.
 
@@ -205,7 +205,7 @@ ls.set('key', 'value', { encrypt: true });
 Retrieves the Data associated with the key stored in the LocalStorage. It accepts 2 arguments -
 
 1. `key: string` **[Required]** - The key with which the value is associated
-2. `config: Config` **[Optional]** - This argument accepts the same properties as the [global config](#config) object. Defaults to an empty object
+2. `config: Config` **[Optional]** - This argument accepts the same properties (except `storage` property) as the [global config](#config) object. Defaults to an empty object
 
 If the passed key does not exist, it returns `null`.
 
