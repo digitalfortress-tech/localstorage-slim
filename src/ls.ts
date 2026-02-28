@@ -29,12 +29,13 @@ const init = () => {
 const APX = String.fromCharCode(0);
 
 // tiny obsfuscator as a default implementation
-const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) =>
-  encrypt
-    ? [...(JSON.stringify(str) as unknown as string[])]
-      .map((x) => String.fromCharCode(x.charCodeAt(0) + (key as number)))
-      .join('')
-    : JSON.parse([...(str as string[])].map((x) => String.fromCharCode(x.charCodeAt(0) - (key as number))).join(''));
+const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) => {
+  const s = encrypt ? JSON.stringify(str) : (str as string);
+  const offset = encrypt ? (key as number) : -(key as number);
+  let result = '';
+  for (let i = 0; i < s.length; i++) result += String.fromCharCode(s.charCodeAt(i) + offset);
+  return encrypt ? result : JSON.parse(result);
+};
 
 const decrypter: Decrypter = (str, key) => encrypter(str, key, false);
 
@@ -52,26 +53,20 @@ Object.seal(config);
 const set = <T = unknown>(key: string, value: T, localConfig: Omit<StorageConfig, 'storage'> = {}): void | boolean => {
   init();
 
-  const _conf = {
-    ...config,
-    ...localConfig,
-    encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
-    ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
-  };
+  const encrypt = localConfig.encrypt ?? config.encrypt;
+  const ttl = localConfig.ttl === null ? null : localConfig.ttl || config.ttl;
 
   try {
-    const hasTTL = _conf.ttl && !isNaN(_conf.ttl) && _conf.ttl > 0;
-    let val = hasTTL ? { [APX]: value, ttl: Date.now() + (_conf.ttl as number) * 1e3 } : value;
+    const hasTTL = ttl && !isNaN(ttl) && ttl > 0;
+    let val = hasTTL ? { [APX]: value, ttl: Date.now() + (ttl as number) * 1e3 } : value;
 
-    if (_conf.encrypt) {
-      // if ttl exists, only encrypt the value
+    if (encrypt) {
+      const encrypterFn = localConfig.encrypter || config.encrypter || NOOP;
+      const secret = localConfig.secret ?? config.secret;
       if (hasTTL) {
-        (val as Record<string, unknown>)[APX] = (_conf.encrypter || NOOP)(
-          (val as Record<string, unknown>)[APX],
-          _conf.secret
-        ) as string;
+        (val as Record<string, unknown>)[APX] = encrypterFn((val as Record<string, unknown>)[APX], secret) as string;
       } else {
-        val = (_conf.encrypter || NOOP)(val, _conf.secret) as T;
+        val = encrypterFn(val, secret) as T;
       }
     }
 
@@ -87,12 +82,7 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
 
   const str = storage.getItem(key);
 
-  const _conf = {
-    ...config,
-    ...localConfig,
-    encrypt: localConfig.encrypt === false ? false : localConfig.encrypt || config.encrypt,
-    ttl: localConfig.ttl === null ? null : localConfig.ttl || config.ttl,
-  };
+  const shouldDecrypt = localConfig.decrypt || (localConfig.encrypt ?? config.encrypt);
 
   let item;
   let hasTTL;
@@ -101,11 +91,13 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
     item = JSON.parse(str || '');
     hasTTL = isObject(item) && APX in item;
 
-    if (_conf.decrypt || _conf.encrypt) {
+    if (shouldDecrypt) {
+      const decrypterFn = localConfig.decrypter || config.decrypter || NOOP;
+      const secret = localConfig.secret ?? config.secret;
       if (hasTTL) {
-        item[APX] = (_conf.decrypter || NOOP)(item[APX], _conf.secret) as string;
+        item[APX] = decrypterFn(item[APX], secret) as string;
       } else {
-        item = (_conf.decrypter || NOOP)(item, _conf.secret) as string;
+        item = decrypterFn(item, secret) as string;
       }
     }
   } catch {
@@ -128,6 +120,7 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
 
 const flush = (force = false): void => {
   init();
+  const now = Date.now();
   for (const key of Object.keys(storage)) {
     const str = storage.getItem(key);
     let item;
@@ -138,7 +131,7 @@ const flush = (force = false): void => {
       continue;
     }
     // flush only if ttl was set and is expired or is forced to clear
-    if (isObject(item) && APX in item && (Date.now() > item.ttl || force)) {
+    if (isObject(item) && APX in item && (now > item.ttl || force)) {
       storage.removeItem(key);
     }
   }

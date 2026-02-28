@@ -2,12 +2,7 @@ import type { Dictionary } from './types';
 
 export const NOOP = (...args: unknown[]): unknown => undefined;
 
-// @deprecated @todo: remove in v3.
-export const escapeRegExp = (text: string): string => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-
-export const isObject = (item: any): boolean => {
-  return item !== null && item?.constructor.name === 'Object';
-};
+export const isObject = (item: any): boolean => typeof item === 'object' && item !== null && !Array.isArray(item);
 
 /** Specific to local-storage */
 
@@ -16,23 +11,19 @@ export const memoryStore = (): Storage => {
   // because as of Feb 2023 ALL webbrowsers support LS (even in incognito mode)
   // thrown error is generally due to a security policy (or perhaps exceeding storage capacity)
   const mStore = {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
     removeItem: (key: string) => {
-      store[key] = undefined;
+      delete store[key];
     },
     clear: () => {
-      store = {
-        __proto__: mStore,
-      };
+      for (const key of Object.keys(store)) delete store[key];
     },
   };
 
-  let store: Dictionary = {
-    __proto__: mStore,
-  };
+  const store: Dictionary = Object.create(mStore);
 
   return store as Storage;
 };
