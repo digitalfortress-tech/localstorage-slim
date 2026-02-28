@@ -2,22 +2,21 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install Dependencies
-	@npm i
+	@pnpm install
 
-watch:	## Build for Dev environment and Watch files
-	@npm run watch
+dev:	## Build and watch for changes
+	@pnpm run dev
 
 lint:		## Lint all files
-	@npm run lint
+	@pnpm run lint
 
 test:		## Run unit tests (JEST)
-	@npm run test
+	@pnpm run test
 
 prod:		## Build for Production environment
-	@npm run prod
+	@pnpm run prod
 
 publish:	## Publish to NPM
 	@make prod
-	@npm run copy-typescript-definitions
 	@make test
-	@npm publish
+	@pnpm publish
