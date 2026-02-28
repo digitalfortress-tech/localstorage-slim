@@ -132,6 +132,67 @@ describe('LS wrapper', () => {
     expect(ls.get('key4')).toBe(null);
   });
 
+  it('remove() should remove a specific key', () => {
+    ls.set('key1', 'value1');
+    ls.set('key2', 'value2');
+    ls.remove('key1');
+    expect(ls.get('key1')).toBe(null);
+    expect(ls.get('key2')).toBe('value2');
+  });
+
+  it('remove() should not throw for non-existent key', () => {
+    expect(() => ls.remove('nonexistent')).not.toThrow();
+  });
+
+  it('clear() should remove all data', () => {
+    ls.set('key1', 'value1');
+    ls.set('key2', 'value2', { ttl: 10 });
+    ls.set('key3', 'value3', { encrypt: true });
+    ls.clear();
+    expect(ls.get('key1')).toBe(null);
+    expect(ls.get('key2')).toBe(null);
+    expect(ls.get('key3')).toBe(null);
+  });
+
+  it('set() should return false on circular reference', () => {
+    const circular = {};
+    circular.self = circular;
+    expect(ls.set('circular', circular)).toBe(false);
+  });
+
+  it('should set/get standalone primitive values correctly', () => {
+    ls.set('num', 42);
+    expect(ls.get('num')).toBe(42);
+
+    ls.set('float', 3.14);
+    expect(ls.get('float')).toBe(3.14);
+
+    ls.set('bool_t', true);
+    expect(ls.get('bool_t')).toBe(true);
+
+    ls.set('bool_f', false);
+    expect(ls.get('bool_f')).toBe(false);
+
+    ls.set('nil', null);
+    expect(ls.get('nil')).toBe(null);
+
+    ls.set('zero', 0);
+    expect(ls.get('zero')).toBe(0);
+
+    ls.set('empty', '');
+    expect(ls.get('empty')).toBe('');
+  });
+
+  it('should overwrite existing key with new value', () => {
+    ls.set('key', 'value1');
+    expect(ls.get('key')).toBe('value1');
+    ls.set('key', 'value2');
+    expect(ls.get('key')).toBe('value2');
+
+    ls.set('key', testObj);
+    expect(ls.get('key')).toStrictEqual(testObj);
+  });
+
   it('should not flush items set by external libs', async () => {
     ls.set('key1', 'value1', { ttl: 0.2 });
     localStorage.setItem('flush_test1', 'value_f1'); // not stringified
@@ -273,6 +334,22 @@ describe('TTL', () => {
     ls.set('some_key', 'some_value', { ttl: null });
     await new Promise((res) => setTimeout(res, 150));
     expect(ls.get('some_key')).toBe('some_value');
+  });
+
+  it('Invalid TTL values (0, negative, NaN) should be treated as no TTL', () => {
+    ls.set('key0', 'value', { ttl: 0 });
+    ls.set('keyNeg', 'value', { ttl: -5 });
+    ls.set('keyNaN', 'value', { ttl: NaN });
+
+    // None should have TTL wrapper, stored as plain value
+    expect(localStorage.getItem('key0')).toBe('"value"');
+    expect(localStorage.getItem('keyNeg')).toBe('"value"');
+    expect(localStorage.getItem('keyNaN')).toBe('"value"');
+
+    // Values should be retrievable normally
+    expect(ls.get('key0')).toBe('value');
+    expect(ls.get('keyNeg')).toBe('value');
+    expect(ls.get('keyNaN')).toBe('value');
   });
 
   it('When global ttl is enabled, Disable ttl for a particular item alone', async () => {
@@ -440,6 +517,32 @@ describe('Local encryption', () => {
     ls.set('some_key', 'value', { ttl: 3 });
     const val = JSON.parse(localStorage.getItem('some_key'));
     expect(typeof val.ttl).toBe('number');
+  });
+});
+
+describe('Config', () => {
+  afterEach(() => {
+    global.localStorage.clear();
+    ls.config.ttl = null;
+    ls.config.encrypt = false;
+    ls.config.secret = 75;
+  });
+
+  it('config should be sealed (cannot add new properties)', () => {
+    expect(() => {
+      'use strict';
+      ls.config.newProp = 'test';
+    }).toThrow(TypeError);
+    expect(ls.config.newProp).toBeUndefined();
+  });
+
+  it('config should allow modifying existing properties', () => {
+    ls.config.ttl = 5;
+    expect(ls.config.ttl).toBe(5);
+    ls.config.encrypt = true;
+    expect(ls.config.encrypt).toBe(true);
+    ls.config.secret = 'custom';
+    expect(ls.config.secret).toBe('custom');
   });
 });
 
