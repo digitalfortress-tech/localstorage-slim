@@ -6,14 +6,11 @@
   "homepage": "https://github.com/digitalfortress-tech/localstorage-slim",
   "license": "MIT",
   "scripts": {
-    "dev": "npm run server -- --mode development --progress",
-    "prod": "npm run server -- --mode production",
-    "watch": "npm run dev -- --watch",
-    "server": "webpack",
+    "dev": "vite build --watch",
+    "prod": "vite build",
     "tag": "npm version minor --no-git-tag-version && npm run prod && PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git commit -am \"$PACKAGE_VERSION release\" && git tag v$PACKAGE_VERSION",
     "test": "jest --verbose",
-    "lint": "eslint ./src --fix",
-    "copy-typescript-definitions": "copyfiles -u 1 \"src/**/*.d.ts\" dist"
+    "lint": "eslint ./src --fix"
   },
   "jest": {
     "testEnvironment": "jsdom",
@@ -27,9 +24,22 @@
     "email": "contact@niketpathak.com",
     "url": "https://niketpathak.com"
   },
+  "main": "dist/localstorage-slim.cjs",
+  "module": "dist/localstorage-slim.mjs",
   "browser": "dist/localstorage-slim.js",
-  "main": "dist/localstorage-slim.js",
-  "types": "./dist/ls.d.ts",
+  "types": "dist/ls.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/ls.d.ts",
+        "default": "./dist/localstorage-slim.mjs"
+      },
+      "require": {
+        "types": "./dist/ls.d.ts",
+        "default": "./dist/localstorage-slim.cjs"
+      }
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/digitalfortress-tech/localstorage-slim"
@@ -80,23 +90,17 @@
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "babel-jest": "^29.7.0",
-    "babel-loader": "^10.0.0",
-    "copyfiles": "^2.4.1",
     "crypto-js": "^4.2.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.15.0",
     "eslint-plugin-prettier": "^5.5.5",
-    "eslint-webpack-plugin": "^5.0.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.2.0",
-    "mini-css-extract-plugin": "^2.10.0",
     "prettier": "^3.8.1",
-    "style-loader": "^4.0.0",
     "ts-jest": "^29.4.6",
-    "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "webpack": "^5.105.3",
-    "webpack-cli": "^6.0.1"
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
