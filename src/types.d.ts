@@ -1,5 +1,5 @@
 export type Encrypter = (...args: unknown[]) => string;
-export type Decrypter = (...args: unknown[]) => string;
+export type Decrypter = (...args: unknown[]) => unknown;
 
 export type Dictionary<T = unknown> = Record<string, T>;
 

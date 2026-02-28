@@ -4,7 +4,7 @@
  * MIT License
  */
 
-import { isObject, NOOP, memoryStore } from './helpers';
+import { isObject, memoryStore } from './helpers';
 import type { Encrypter, Decrypter, StorageConfig } from './types';
 
 // private fields
@@ -29,15 +29,14 @@ const init = () => {
 const APX = String.fromCharCode(0);
 
 // tiny obsfuscator as a default implementation
-const encrypter: Encrypter | Decrypter = (str, key, encrypt = true) => {
-  const s = encrypt ? JSON.stringify(str) : (str as string);
-  const offset = encrypt ? (key as number) : -(key as number);
-  let result = '';
-  for (let i = 0; i < s.length; i++) result += String.fromCharCode(s.charCodeAt(i) + offset);
-  return encrypt ? result : JSON.parse(result);
+const shift = (s: string, offset: number): string => {
+  let r = '';
+  for (let i = 0; i < s.length; i++) r += String.fromCharCode(s.charCodeAt(i) + offset);
+  return r;
 };
 
-const decrypter: Decrypter = (str, key) => encrypter(str, key, false);
+const encrypter: Encrypter = (str, key) => shift(JSON.stringify(str), key as number);
+const decrypter: Decrypter = (str, key) => JSON.parse(shift(str as string, -(key as number)));
 
 const config: StorageConfig = {
   ttl: null,
@@ -61,12 +60,12 @@ const set = <T = unknown>(key: string, value: T, localConfig: Omit<StorageConfig
     let val = hasTTL ? { [APX]: value, ttl: Date.now() + (ttl as number) * 1e3 } : value;
 
     if (encrypt) {
-      const encrypterFn = localConfig.encrypter || config.encrypter || NOOP;
+      const encrypterFn = (localConfig.encrypter || config.encrypter) as Encrypter;
       const secret = localConfig.secret ?? config.secret;
       if (hasTTL) {
-        (val as Record<string, unknown>)[APX] = encrypterFn((val as Record<string, unknown>)[APX], secret) as string;
+        (val as Record<string, unknown>)[APX] = encrypterFn((val as Record<string, unknown>)[APX], secret);
       } else {
-        val = encrypterFn(val, secret) as T;
+        val = encrypterFn(val, secret) as unknown as T;
       }
     }
 
@@ -92,7 +91,7 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
     hasTTL = isObject(item) && APX in item;
 
     if (shouldDecrypt) {
-      const decrypterFn = localConfig.decrypter || config.decrypter || NOOP;
+      const decrypterFn = (localConfig.decrypter || config.decrypter) as Decrypter;
       const secret = localConfig.secret ?? config.secret;
       if (hasTTL) {
         item[APX] = decrypterFn(item[APX], secret) as string;
@@ -107,7 +106,7 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
 
   // if not using ttl, return immediately
   if (!hasTTL) {
-    return item !== undefined ? item : str;
+    return (item !== undefined ? item : str) as T | null;
   }
 
   if (Date.now() > item.ttl) {

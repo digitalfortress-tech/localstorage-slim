@@ -1,8 +1,6 @@
 import type { Dictionary } from './types';
 
-export const NOOP = (...args: unknown[]): unknown => undefined;
-
-export const isObject = (item: any): boolean => typeof item === 'object' && item !== null && !Array.isArray(item);
+export const isObject = (item: unknown): boolean => typeof item === 'object' && item !== null && !Array.isArray(item);
 
 /** Specific to local-storage */
 
