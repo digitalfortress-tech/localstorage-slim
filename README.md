@@ -1,7 +1,7 @@
 # :zap: localstorage-slim.js :zap:
 
 [![npm version](https://img.shields.io/npm/v/localstorage-slim.svg)](https://www.npmjs.com/package/localstorage-slim)
-[![Build Status](https://img.shields.io/circleci/build/github/digitalfortress-tech/localstorage-slim/master)](https://app.circleci.com/pipelines/github/digitalfortress-tech/localstorage-slim?branch=master)
+[![Build Status](https://github.com/digitalfortress-tech/localstorage-slim/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalfortress-tech/localstorage-slim/actions/workflows/ci.yml)
 [![code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![CDN hits](https://data.jsdelivr.com/v1/package/npm/localstorage-slim/badge?style=rounded)](https://www.jsdelivr.com/package/npm/localstorage-slim)
 [![Downloads](https://img.shields.io/npm/dt/localstorage-slim)](https://npm-stat.com/charts.html?package=localstorage-slim)

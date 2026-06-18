@@ -26,27 +26,22 @@ Everything below is incremental on top of a green baseline.
 
 The repo migrated npm→pnpm and webpack→vite (see recent commits) but CI was **not** updated.
 
-1.1. 🔴 **CircleCI installs with npm but the project is pnpm-only.**
-   [.circleci/config.yml](../.circleci/config.yml) uses `node/install-packages: { pkg-manager: npm }`
-   on `cimg/node:16.10`, then runs `make prod` / `make test` which call `pnpm`. There is no
-   `package-lock.json` (only `pnpm-lock.yaml`), so the npm install path is inconsistent and pnpm
-   will not be on PATH. **Action:** either switch CI to pnpm (corepack enable + `pnpm/action-setup`)
-   or drop CircleCI in favor of a GitHub Actions workflow (see 1.4). Bump Node to an active LTS
-   (20 or 22); Node 16 is EOL.
+1.1. ✅ **DONE** — 🔴 **CircleCI installs with npm but the project is pnpm-only.**
+   Resolved by retiring CircleCI entirely (`.circleci/config.yml` removed) in favor of the
+   GitHub Actions workflow added in 1.4. The npm/pnpm mismatch and EOL Node 16 image no longer exist.
 
-1.2. 🔴 **CodeQL workflow uses retired action versions.**
-   [.github/workflows/codeql-analysis.yml](../.github/workflows/codeql-analysis.yml) pins
-   `actions/checkout@v2` and `github/codeql-action/*@v1`. CodeQL v1 was deprecated and no longer
-   runs on GitHub-hosted runners. **Action:** upgrade to `checkout@v4` and `codeql-action/*@v3`,
-   and add `develop` to the trigger branches.
+1.2. ✅ **DONE** — 🔴 **CodeQL workflow uses retired action versions.**
+   [.github/workflows/codeql-analysis.yml](../.github/workflows/codeql-analysis.yml) upgraded to
+   `actions/checkout@v4` and `github/codeql-action/*@v3`, and `develop` added to the trigger branches.
 
-1.3. 🟡 **No CI test run on PRs to `develop`.** CodeQL only triggers on `master`. The active
-   development branch has no automated gate. **Action:** run lint + test + build on PRs to both
-   `master` and `develop`.
+1.3. ✅ **DONE** — 🟡 **No CI test run on PRs to `develop`.** The new
+   [ci.yml](../.github/workflows/ci.yml) runs lint + test + build on push and PRs to both `master`
+   and `develop`.
 
-1.4. 🟡 **Consolidate CI.** Recommend a single `.github/workflows/ci.yml` (pnpm + corepack, matrix
-   over Node 20/22) running `pnpm lint`, `pnpm test`, `pnpm prod`. Retire CircleCI or keep it
-   minimal. Update the CircleCI build badge in the README accordingly.
+1.4. ✅ **DONE** — 🟡 **Consolidate CI.** Added a single
+   [.github/workflows/ci.yml](../.github/workflows/ci.yml) (pnpm via `pnpm/action-setup`, Node 20/22
+   matrix, `setup-node` pnpm cache) running `pnpm run lint`, `pnpm run test`, `pnpm run prod`.
+   CircleCI retired; the README build badge now points at GitHub Actions.
 
 1.5. 🟢 **Add `engines` + `.nvmrc`/`packageManager`.** Declare `"engines": { "node": ">=20" }` and
    `"packageManager": "pnpm@<version>"` in [package.json](../package.json) so contributors and CI
