@@ -54,15 +54,16 @@ The repo migrated npm→pnpm and webpack→vite (see recent commits) but CI was 
 
 ## 2. Security & Hardening
 
-2.1. 🟡 **Make the "encryption is obfuscation" warning impossible to miss.**
-   The default `encrypter`/`decrypter` is a Caesar-style char-shift ([src/ls.ts:32-39](../src/ls.ts#L32-L39)).
-   The README already warns, but the JSDoc/type comments and the config table label it as
-   "encryption". **Action:** rename the default in code comments to "obfuscation", add a one-line
-   JSDoc on `config.encrypt`/`config.encrypter` stating it is *not* cryptographically secure, and
-   point to the CryptoJS recipe. No behavior change.
+2.1. ✅ **DONE** — 🟡 **Make the "encryption is obfuscation" warning impossible to miss.**
+   Added a prominent JSDoc block above the default `shift`/`encrypter`/`decrypter` in
+   [src/ls.ts](../src/ls.ts) stating it is obfuscation, not cryptography, and pointing to the
+   CryptoJS recipe; added matching JSDoc on `encrypt`/`encrypter`/`decrypter` in the public
+   [src/types.d.ts](../src/types.d.ts) (so the warning surfaces in consumers' editors). No behavior
+   change.
 
-2.2. 🟢 **Add `SECURITY.md`** with a disclosure contact and an explicit statement of the threat
-   model (LS is readable by any same-origin script; obfuscation deters casual inspection only).
+2.2. ✅ **DONE** — 🟢 **Add `SECURITY.md`** — added [SECURITY.md](../SECURITY.md) with the threat
+   model (same-origin script access, obfuscation ≠ encryption, don't store secrets), supported
+   versions, and private disclosure instructions.
 
 2.3. 🟢 **Publish provenance / supply chain.** When publishing, use `pnpm publish --provenance`
    from CI (npm provenance) and ensure `files` whitelist (already `["dist/"]`) excludes maps if
@@ -161,10 +162,10 @@ The repo migrated npm→pnpm and webpack→vite (see recent commits) but CI was 
 6.3. 🟢 **Bundle-size guard.** Add a `size-limit` (or a simple gzip-size assertion script) check in
    CI so the "~1 kB" promise in the README/badges can't silently regress.
 
-6.4. 🟢 **Fix README copy-paste error.** The install section says
-   "you can install **typeahead** with npm" ([README.md](../README.md)) — should read
-   "localstorage-slim". Also update the hard-pinned `unpkg.com/localstorage-slim@2.7.0` example to a
-   versionless URL so it tracks the latest release.
+6.4. ✅ **DONE** — 🟢 **Fix README copy-paste error.** The install comment now reads
+   "you can install localstorage-slim with npm" ([README.md](../README.md)), and the hard-pinned
+   `unpkg.com/localstorage-slim@2.7.0` example is now the versionless
+   `unpkg.com/localstorage-slim/...` URL so it tracks the latest release.
 
 6.5. 🟢 **Documentation set.** Add `AGENTS.md` (contributor + agent operating guide) and a
    `CLAUDE.md` that points to it (delivered alongside this plan). Keep them in sync with

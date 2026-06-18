@@ -25,7 +25,13 @@ const init = () => {
   flush();
 };
 
-// tiny obsfuscator as a default implementation
+/**
+ * Default "encryption" implementation — a tiny char-shift OBFUSCATION, NOT real cryptography.
+ * It only deters casual inspection of the stored value; it provides no confidentiality against
+ * anyone with same-origin script access. For genuine encryption, override `config.encrypter` /
+ * `config.decrypter` with a real algorithm (e.g. AES via CryptoJS). See the README "Encryption"
+ * section. Never store passwords, tokens, or PII in localStorage, encrypted or not.
+ */
 const shift = (s: string, offset: number): string => {
   let r = '';
   for (let i = 0; i < s.length; i++) r += String.fromCharCode(s.charCodeAt(i) + offset);

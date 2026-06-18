@@ -27,7 +27,7 @@ An ultra slim localstorage wrapper with optional support for **ttl** and **encry
 ## ➕ Install
 
 ```shell script
-# you can install typeahead with npm
+# you can install localstorage-slim with npm
 $ npm install --save localstorage-slim
 
 # Alternatively you can use Yarn
@@ -52,7 +52,7 @@ var ls = require('localstorage-slim');
 <!-- Alternatively, you can use a CDN with jsdelivr -->
 <script src="https://cdn.jsdelivr.net/npm/localstorage-slim"></script>
 <!-- or with unpkg.com -->
-<script src="https://unpkg.com/localstorage-slim@2.7.0/dist/localstorage-slim.js"></script>
+<script src="https://unpkg.com/localstorage-slim/dist/localstorage-slim.js"></script>
 ```
 The library will be available as a global object at `window.ls`
 
