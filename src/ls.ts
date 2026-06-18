@@ -4,7 +4,7 @@
  * MIT License
  */
 
-import { isObject, memoryStore } from './helpers';
+import { APX, isTTLWrapper, memoryStore } from './helpers';
 import type { Encrypter, Decrypter, StorageConfig } from './types';
 
 // private fields
@@ -24,9 +24,6 @@ const init = () => {
 
   flush();
 };
-
-// Apex
-const APX = String.fromCharCode(0);
 
 // tiny obsfuscator as a default implementation
 const shift = (s: string, offset: number): string => {
@@ -88,7 +85,7 @@ const get = <T = unknown>(key: string, localConfig: Omit<StorageConfig, 'storage
 
   try {
     item = JSON.parse(str || '');
-    hasTTL = isObject(item) && APX in item;
+    hasTTL = isTTLWrapper(item);
 
     if (shouldDecrypt) {
       const decrypterFn = (localConfig.decrypter || config.decrypter) as Decrypter;
@@ -129,8 +126,8 @@ const flush = (force = false): void => {
       // Some packages write strings to localStorage that are not converted by JSON.stringify(), so we need to ignore it
       continue;
     }
-    // flush only if ttl was set and is expired or is forced to clear
-    if (isObject(item) && APX in item && (now > item.ttl || force)) {
+    // flush only genuine TTL wrappers that are expired or when forced to clear
+    if (isTTLWrapper(item) && (now > item.ttl || force)) {
       storage.removeItem(key);
     }
   }

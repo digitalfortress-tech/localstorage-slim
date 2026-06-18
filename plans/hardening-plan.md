@@ -76,13 +76,16 @@ The repo migrated npm→pnpm and webpack→vite (see recent commits) but CI was 
 
 ## 3. Correctness & Safe Fixes
 
-3.1. 🟡 **`flush(force=true)` can delete unrelated user objects.**
+3.1. ✅ **DONE** — 🟡 **`flush(force=true)` can delete unrelated user objects.**
    `flush()` removes any stored object where `isObject(item) && APX in item` and
    `(now > item.ttl || force)` ([src/ls.ts:133](../src/ls.ts#L133)). A value the user legitimately
    stored that happens to contain a `"\u0000"` key would be force-deleted. The APX sentinel is a
    reasonable heuristic, but a TTL wrapper is specifically `{ [APX]: value, ttl: <number> }`.
-   **Action:** tighten the predicate to also require `typeof item.ttl === 'number'` so only genuine
-   TTL wrappers are eligible for flushing. Add a regression test.
+   **Resolution:** detection now goes through `isTTLWrapper()` (see 5.1), which requires
+   `typeof item.ttl === 'number'`, so only genuine TTL wrappers are flushed and `get()` round-trips
+   a user object that merely contains the sentinel key. Covered by a new regression test in
+   [src/ls.spec.js](../src/ls.spec.js) ("flush(true) should not remove user objects that merely
+   contain the sentinel key").
 
 3.2. 🟡 **Document/guard the char-shift cipher's lossy range.** `shift()` does
    `String.fromCharCode(charCodeAt(i) + offset)`. Large offsets or values near the UTF-16 boundary
@@ -124,10 +127,10 @@ The repo migrated npm→pnpm and webpack→vite (see recent commits) but CI was 
 
 ## 5. Redundancy & Code Quality
 
-5.1. 🟡 **Extract the duplicated TTL-wrapper detection.** The pattern
-   `isObject(item) && APX in item` (plus the ttl-number check from 3.1) appears in both `get()` and
-   `flush()`. **Action:** add `isTTLWrapper(item): boolean` to [src/helpers.ts](../src/helpers.ts)
-   and reuse it. Reduces drift between the two code paths and makes 3.1 a one-line fix.
+5.1. ✅ **DONE** — 🟡 **Extract the duplicated TTL-wrapper detection.** Added
+   `isTTLWrapper(item): boolean` to [src/helpers.ts](../src/helpers.ts) (along with the `APX`
+   sentinel, moved there from `ls.ts`) and reused it in both `get()` and `flush()`. This removed the
+   duplicated `isObject(item) && APX in item` checks and folded in the ttl-number guard from 3.1.
 
 5.2. 🟢 **Centralize the local-vs-global config resolution.** `encrypt`, `ttl`, `secret`,
    `encrypter`/`decrypter` are each resolved with the same `localConfig.x ?? config.x` dance in both

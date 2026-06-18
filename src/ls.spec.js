@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import ls from './ls';
 import AES from 'crypto-js/aes';
@@ -191,6 +190,22 @@ describe('LS wrapper', () => {
 
     ls.set('key', testObj);
     expect(ls.get('key')).toStrictEqual(testObj);
+  });
+
+  it('flush(true) should not remove user objects that merely contain the sentinel key', () => {
+    const APX = String.fromCharCode(0);
+    // a user object that happens to contain the sentinel key but is NOT a TTL wrapper (no numeric ttl)
+    const userObj = { [APX]: 'data', foo: 'bar' };
+    ls.set('user_obj', userObj);
+    // a genuine TTL item
+    ls.set('ttl_item', 'value', { ttl: 100 });
+
+    ls.flush(true);
+
+    // genuine TTL wrapper is force-flushed
+    expect(ls.get('ttl_item')).toBe(null);
+    // user object with the sentinel key survives and round-trips intact
+    expect(ls.get('user_obj')).toStrictEqual(userObj);
   });
 
   it('should not flush items set by external libs', async () => {
